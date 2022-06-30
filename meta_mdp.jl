@@ -16,33 +16,28 @@ end
 "Ground truth state"
 struct State
     value::Vector{Float64}  # values of each item in the choice set
-    σ_obs::Float64          # MetaMDP parameter, stored here for convenience
 end
-State(m::MetaMDP, value) = State(value, m.σ_obs)
-State(m::MetaMDP) = State(m, randn(m.n_item))
+State(m::MetaMDP) = State(randn(m.n_item))
 
 
 "Belief state"
 mutable struct Belief
     µ::Vector{Float64}  # mean vector
     λ::Vector{Float64}  # precision vector
-    σ_obs::Float64      # metaMDP parameter, stored here for convenience
     focused::Int        # currently fixated item (necessary for switch cost)
 end
 
 Belief(s::State) = Belief(
     zeros(length(s.value)),
     ones(length(s.value)),
-    s.σ_obs,
     0
 )
 Belief(m::MetaMDP) = Belief(
     zeros(m.n_item),
     ones(m.n_item),
-    m.σ_obs,
     0
 )
-Base.copy(b::Belief) = Belief(copy(b.µ), copy(b.λ), b.σ_obs, b.focused)
+Base.copy(b::Belief) = Belief(copy(b.µ), copy(b.λ), b.focused)
 
 
 "Base type for metalevel policies."
@@ -84,10 +79,10 @@ function cost(m::MetaMDP, b::Belief, c::Computation)
 end
 
 "Updates belief based on the given computation."
-function transition!(b::Belief, s::State, c::Computation)
+function transition!(m, b::Belief, s::State, c::Computation)
     b.focused = c
-    obs = s.value[c] + randn() * s.σ_obs
-    b.µ[c], b.λ[c] = bayes_update_normal(b.μ[c], b.λ[c], obs, s.σ_obs ^ -2)
+    obs = s.value[c] + randn() * m.σ_obs
+    b.µ[c], b.λ[c] = bayes_update_normal(b.μ[c], b.λ[c], obs, m.σ_obs ^ -2)
 end
 
 "Returns updated mean and precision given a prior and observation."
@@ -110,7 +105,7 @@ function rollout(policy::Policy; s=State(policy.m), max_steps=1000, callback=(b,
             return (reward=reward, choice=argmax(noisy(b.µ)), steps=t, state=s, belief=b)
         else
             reward -= cost(m, b, c)
-            transition!(b, s, c)
+            transition!(m, b, s, c)
         end
     end
 end

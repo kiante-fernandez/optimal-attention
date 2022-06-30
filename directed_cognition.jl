@@ -10,7 +10,7 @@ for taking one additional sample to be max_N VOC(take N samples). This is a
 lower bound on the true VOC.
 "
 
-voc_n(m, b, c, n) = voi_n(b, c, n) - m.sample_cost * n
+voc_n(m, b, c, n) = voi_n(m, b, c, n) - m.sample_cost * n
 
 @kwdef struct DirectedCognition <: SoftmaxPolicy
     m::MetaMDP

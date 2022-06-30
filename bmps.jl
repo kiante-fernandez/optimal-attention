@@ -5,9 +5,6 @@ using StatsBase
 using Serialization
 # using OnlineStats
 
-include("utils.jl")
-include("voi.jl")
-
 BMPSWeights = NamedTuple{(:cost, :voi1, :voi_action, :vpi),Tuple{Float64,Float64,Float64,Float64}}
 "A metalevel policy that uses the BMPS features"
 struct BMPSPolicy <: Policy
@@ -21,39 +18,39 @@ BMPSPolicy(m::MetaMDP, θ::Vector{Float64}, α=Inf) = BMPSPolicy(m, BMPSWeights(
 
 "VOC without VPI feature"
 function fast_voc(pol::BMPSPolicy, b::Belief)
-    θ = pol.θ
-    map(1:pol.m.n_item) do c
+    (;m, θ) = pol
+    map(1:m.n_item) do c
         -cost(pol.m, b, c) +
         -θ.cost +
-        θ.voi1 * voi1(b, c) +
-        θ.voi_action * voi_action(b, c)
+        θ.voi1 * voi1(m, b, c) +
+        θ.voi_action * voi_action(m, b, c)
     end
 end
 
 "Full VOC"
 function voc(pol::BMPSPolicy, b::Belief)
-    fast_voc(pol, b) .+ pol.θ.vpi * vpi(b)
+    fast_voc(pol, b) .+ pol.θ.vpi * vpi(pol.m, b)
 end
 
 "Selects a computation to take in the given belief state"
 function select(pol::BMPSPolicy, b::Belief; clever=true)
-    θ = pol.θ
+    (;m, θ) = pol
     voc = fast_voc(pol, b)
 
     if !clever  # computationally inefficient, but clearly correct
-        voc .+= θ.vpi * vpi(b)
+        voc .+= θ.vpi * vpi(m, b)
         if pol.β == Inf
             v, c = findmax(voc)
             return (v > 0) ? c : ⊥
         else
             p = softmax(pol.β .* [0; voc])
-            return sample(0:pol.m.n_item, Weights(p))
+            return sample(0:m.n_item, Weights(p))
         end
     end
 
     if pol.β < Inf
         # gumbel-max trick
-        voc .+= rand(Gumbel(), pol.m.n_item) ./ pol.β
+        voc .+= rand(Gumbel(), m.n_item) ./ pol.β
         voc .-= rand(Gumbel()) / pol.β  # for term action
     else
         # break ties randomly
@@ -64,12 +61,12 @@ function select(pol::BMPSPolicy, b::Belief; clever=true)
     v, c = findmax(voc)
 
     # Try putting VPI weight on VOI_action (a lower bound on VPI)
-    v + θ.vpi * voi_action(b, c) > 0 && return c
+    v + θ.vpi * voi_action(m, b, c) > 0 && return c
 
     θ.vpi == 0. && return ⊥  # no weight on VPI, VOC can't improve
 
     # Try actual VPI.
-    v + θ.vpi * vpi(b) > 0 && return c
+    v + θ.vpi * vpi(m, b) > 0 && return c
 
     # Nope.
     return ⊥

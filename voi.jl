@@ -5,26 +5,26 @@ using QuadGK
 using StatsFuns: normcdf, normpdf
 
 "Value of information from n samples of item c"
-function voi_n(b::Belief, c::Computation, n)
+function voi_n(m::MetaMDP, b::Belief, c::Computation, n)
     cv = competing_value(b.µ, c)
-    σ_μ = std_of_posterior_mean(b.λ[c], b.σ_obs / √n)
+    σ_μ = std_of_posterior_mean(b.λ[c], m.σ_obs / √n)
     σ_μ ≈ 0. && return 0.  # avoid error initializing Normal
     d = Normal(b.µ[c], σ_μ)
     expect_max_dist(d, cv) - maximum(b.µ)
 end
 
 "Myopic value of information"
-voi1(b, c) = voi_n(b, c, 1)
+voi1(m, b, c) = voi_n(m, b, c, 1)
 
 "Value of perfect information about one action"
-function voi_action(b::Belief, a::Int)
+function voi_action(m::MetaMDP, b::Belief, a::Int)
     cv = competing_value(b.µ, a)
     d = Normal(b.µ[a], b.λ[a] ^ -0.5)
     expect_max_dist(d, cv) - maximum(b.µ)
 end
 
 "Value of perfect information about all items"
-function vpi(b)
+function vpi(m::MetaMDP, b::Belief)
     expected_max_norm(b.μ, b.λ) - maximum(b.μ)
 end
 
