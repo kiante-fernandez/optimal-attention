@@ -8,9 +8,23 @@ include("directed_cognition.jl")
 include("bmps.jl")
 include("bmps_bayesopt.jl")
 
-m = MetaMDP(σ_obs=2.6, sample_cost=.003)
+m = MetaMDP(n_item=3, σ_obs=2.6, sample_cost=.003, switch_cost=.01)
 
-# %% ==================== Compare policies ====================
+# %% ==================== simulate trials ====================
+
+function simulate(pol::Policy, s::State)
+    fixations = Int[]
+    roll = rollout(pol; s) do b, c
+        if c != 0
+            push!(fixations, c)
+        end
+    end
+    (;roll.choice, fixations)
+end
+
+simulate(mg, State([-.2, .3, .4]))
+
+# %% ==================== compare policies ====================
 
 function evaluate(pol::Policy; name=string(typeof(pol)))
     @time reward, steps = monte_carlo(10000) do
@@ -20,15 +34,17 @@ function evaluate(pol::Policy; name=string(typeof(pol)))
     @printf "%-20s reward: %.3f  steps: %.3f" name reward steps
 end
 
-
 mg = MetaGreedy(m)
 evaluate(mg)
+simulate(mg, State([-.2, .3, .4]))
 
 dc = DirectedCognition(m; β=1000)
 evaluate(dc)
+simulate(dc, State([-.2, .3, .4]))
 
-bmps1 = BMPSPolicy(m, [0.005, .95, .001, .05])  
+bmps1 = BMPSPolicy(m, [0.01, .97, .00, .03])  
 evaluate(bmps1)
+simulate(bmps1, State([-.2, .3, .4]))
 
 # %% --------
 bmps = optimize_bmps(m, n_iter=100, verbose=true)
