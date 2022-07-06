@@ -58,7 +58,7 @@ function mutate(x::T; kws...) where T
     return T([get(kws, fn, getfield(x, fn)) for fn in fieldnames(T)]...)
 end
 
-function dropnames(namedtuple::NamedTuple, names...) 
+function dropnames(namedtuple::NamedTuple, names...)
     keepnames = Base.diff_names(Base._nt_names(namedtuple), names)
    return NamedTuple{keepnames}(namedtuple)
 end
@@ -103,7 +103,7 @@ function timeout(f, seconds)
 end
 
 function monte_carlo(f, N=10000)
-    N \ mapreduce(+, 1:N) do i
+    mean(1:N) do i
         f()
     end
 end

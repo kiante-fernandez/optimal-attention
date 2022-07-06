@@ -10,6 +10,7 @@ for taking one additional sample to be max_N VOC(take N samples). This is a
 lower bound on the true VOC.
 "
 
+"The value of computations from taking n samples of item c"
 function voc_n(m, b, c, n)
     total_cost = cost(m, b, c) + m.sample_cost * (n-1)  # may include switch cost
     voi_n(m, b, c, n) - total_cost
