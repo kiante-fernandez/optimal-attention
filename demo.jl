@@ -8,7 +8,7 @@ include("directed_cognition.jl")
 include("bmps.jl")
 include("bmps_bayesopt.jl")
 
-m = MetaMDP(n_item=3,sub_size =1, σ_obs=2.6, sample_cost=.003, switch_cost=.01)
+m = MetaMDP(n_item=5,sub_size =2, σ_obs=2.6, sample_cost=.003, switch_cost=.01)
 
 # %% ==================== simulate trials ====================
 
@@ -23,8 +23,8 @@ function simulate(pol::Policy, s::State)
 end
 
 mg = MetaGreedy(m)
-
-sim_res = simulate(mg, State([-.2, .3, .4]))
+s = State(m)
+sim_res = simulate(mg, s)
 sim_res.choice
 # %% ==================== compare policies ====================
 

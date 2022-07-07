@@ -5,12 +5,21 @@ using QuadGK
 using StatsFuns: normcdf, normpdf
 
 "Value of information from n samples of item c"
+#need to sort μ and c!! (convert into and index in the sorted space)
 function voi_n(m::MetaMDP, b::Belief, c::Computation, n)
-    cv = competing_value(b.µ, c)
+    rank = sortperm(b.μ)
+    c_sort = findfirst(isequal(c), rank)
+    mu_sort = b.µ[rank]
+    cv = try
+        competing_value(mu_sort, c_sort, m.sub_size)
+    catch
+        println(rank, b.μ, c, " ", c_sort)
+        rethrow()
+    end
     σ_μ = std_of_posterior_mean(b.λ[c], m.σ_obs / √n)
     σ_μ ≈ 0. && return 0.  # avoid error initializing Normal
     d = Normal(b.µ[c], σ_μ)
-    expect_max_dist(d, cv) - maximum(b.µ)
+    expect_max_dist(d, cv) - comparison_value(mu_sort, c_sort, m.sub_size)
 end
 
 "Myopic value of information"
@@ -31,13 +40,28 @@ end
 
 # ==================== helpers ====================
 
-"Highest value in µ not including µ[a]"
-function competing_value(µ::Vector{Float64}, a::Int)
-    tmp = µ[a]
-    µ[a] = -Inf
-    val = maximum(µ)
-    µ[a] = tmp
-    val
+"First value on the other side of the subset barrier
+NOTE: μ must be sorted
+"
+function competing_value(µ::Vector{Float64}, a::Int, k::Int)
+    n = length(μ)
+    if a ≤ n - k
+        μ[n-k+1]
+    else
+        μ[n-k]
+    end
+end
+
+"First value on the other side of the subset barrier
+NOTE: μ must be sorted
+"
+function comparison_value(µ::Vector{Float64}, a::Int, k::Int)
+    n = length(μ)
+    if a ≤ n - k
+        μ[n-k+1]
+    else
+        μ[a]
+    end
 end
 
 "Expected maximum of a distribution and a constant"
