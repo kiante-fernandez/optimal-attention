@@ -1,7 +1,7 @@
 using Distributed
 using Printf
 using CSV
-using Tables
+using DataFrames
 
 include("utils.jl")
 include("meta_mdp.jl")
@@ -22,7 +22,8 @@ function simulate(pol::Policy, s::State)
     (;roll.choice, fixations)
 end
 
-function generate_states(n_item::Int = 3, mean_value::Int = 2)
+# FRED: this should probably be "generate_values"
+function generate_states(n_item::Int = 3, mean_value::Float64 = 2)
     #Here we just want to generate some set of normally distributed
     # values for a given number of items
     d = Normal(mean_value,1) #arbitray
@@ -30,21 +31,35 @@ function generate_states(n_item::Int = 3, mean_value::Int = 2)
 end
 # %% ==================== set up simulation parameters ====================
 
-dir = "/Users/kiantefernandez/Documents/Julia/optimal-attention/simulation_results/res_subset_size_"
+# FRED: use relative paths so everyone can run the code
+dir = "simulation_results/res_subset_size_"
 n_sims = 10
 
 # %% ==================== run simulation  ====================
-for subset_idx in 1:n_item - 1
-    choice_vector = []
-    value_vector = []
-    for avg_value_idx in 1:10
-        ss = generate_states(n_item, avg_value_idx) #generate some values
-        for trial_idx in 1:n_sims
-            m = MetaMDP(n_item=6,sub_size = subset_idx, σ_obs=2.6, sample_cost=.003, switch_cost=.01)
-            dc = DirectedCognition(m; β=1000)
-            push!(choice_vector, [trial_idx, ss, simulate(dc, State(ss))])
-        end
+
+function grid(;kws...)
+    X = map(Iterators.product(values(kws)...)) do x
+        (; zip(keys(kws), x)...)
     end
-    file_name = string(dir,subset_idx,".csv")
-    CSV.write(file_name,Tables.table(choice_vector))
 end
+
+function write_simulation(n_item; dir=dir, n_sims=n_sims)
+    for subset_idx in 1:n_item - 1
+        m = MetaMDP(;n_item, sub_size = subset_idx, σ_obs=2.6, sample_cost=.003, switch_cost=.01)
+        dc = DirectedCognition(m; β=1000)
+
+        to_sim = grid(
+            avg_value_idx = 0:.2:2,  # 2 is a very strong bias
+            trial_idx = 1:n_sims
+        )[:]  # [:] flattens the matrix
+        trials = map(to_sim) do (;avg_value_idx, trial_idx) # note: with ; the name matters and order doesn't
+            ss = generate_states(n_item, avg_value_idx) #generate some values
+            sim = simulate(dc, State(ss))
+            (;avg_value_idx, trial_idx, ss, sim...)
+        end
+        file_name = string(dir, subset_idx,".csv")
+        CSV.write(file_name, DataFrame(trials))
+    end
+end
+
+write_simulation(6)
