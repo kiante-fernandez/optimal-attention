@@ -11,7 +11,6 @@
 
 ## TODO
 
-_ Generate some sets of States with different characteristics for simulating some choice, rt, and fixation data.
+- ~~Generate some sets of States with different characteristics for simulating some choice, rt, and fixation data.~~
 - Create plots for the following: Probability of choosing the first-seen item as a function of the first-fixation duration & first fixation duration as a function of the rating of the first-fixated item. Best off making these plots in R
 - Clean up code and review code. Retain only code that is needed todo the simulations. Otherwise, you will confuse yourself about what gets used where when.
-_
