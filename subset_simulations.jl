@@ -37,6 +37,8 @@ n_sims = 10
 
 # %% ==================== run simulation  ====================
 
+# FRED: it's fine if this looks like magic to you
+# It's a suuuuper useful utility function, similar to the expand.grid function in R
 function grid(;kws...)
     X = map(Iterators.product(values(kws)...)) do x
         (; zip(keys(kws), x)...)
