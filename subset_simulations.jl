@@ -23,7 +23,7 @@ function simulate(pol::Policy, s::State)
 end
 
 # FRED: this should probably be "generate_values"
-function generate_states(n_item::Int = 3, mean_value::Float64 = 2)
+function generate_values(n_item::Int = 3, mean_value::Float64 = 2)
     #Here we just want to generate some set of normally distributed
     # values for a given number of items
     d = Normal(mean_value,1) #arbitray
@@ -55,7 +55,7 @@ function write_simulation(n_item; dir=dir, n_sims=n_sims)
             trial_idx = 1:n_sims
         )[:]  # [:] flattens the matrix
         trials = map(to_sim) do (;avg_value_idx, trial_idx) # note: with ; the name matters and order doesn't
-            ss = generate_states(n_item, avg_value_idx) #generate some values
+            ss = generate_values(n_item, avg_value_idx) #generate some values
             sim = simulate(dc, State(ss))
             (;avg_value_idx, trial_idx, ss, sim...)
         end
