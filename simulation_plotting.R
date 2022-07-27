@@ -20,6 +20,7 @@
 # Date            Programmers                         Descriptions of Change
 # ====         ================                       ======================
 # 12/07/22      Kianté  Fernandez                     Wrote intial code
+# 27/07/22      Kianté  Fernandez                     Fixed fixation histogram
 
 
 library(here)
@@ -28,7 +29,6 @@ library(readr)
 library(tidyr)
 library(magrittr)
 library(stringr)
-library(dplyr)
 library(tidyverse)
 library(patchwork)
 
@@ -51,20 +51,24 @@ dats <- load_sim_data(filename)
 # model fixation refers to a continuous sequence of samples taken from one item.
 # each fixation is == 100 ms. So 1,1,2.  is 200 ms on item 1 & 100ms on item two
 
-#>function for getting first fixation duration
+#>function for getting first fixation duration (still need to write)
 fixation_duration <- function() {
 
 }
+
 plt_colors <- c("deepskyblue1", "darkgoldenrod2","forestgreen", "firebrick1","darkorchid3")
 
-plots <- vector(mode = "list", length = length(dats))
+plot1 <- vector(mode = "list", length = length(dats))
+plot2 <- vector(mode = "list", length = length(dats))
+plot3 <- vector(mode = "list", length = length(dats))
+
 #plt_idx <- 3
 for (plt_idx in seq_len(length(dats))){
-  res_subset_size_1 <- dats[[plt_idx]]
-  
-  mung_df <- res_subset_size_1 %>%
+  data_set <- dats[[plt_idx]]
+  #munge the data to get it into a format for plotting
+  mung_df <- data_set %>%
     mutate(
-      trial_idx = seq_len(nrow(res_subset_size_1)),
+      trial_idx = seq_len(nrow(data_set)),
       fixations = gsub("\\[|\\]", "", fixations),
       choice = gsub("\\[|\\]", "", choice)
     ) %>%
@@ -89,12 +93,14 @@ for (plt_idx in seq_len(length(dats))){
       y = "Density",
       title = "Kernel density estimation for the distribution of total fixation time",
       subtitle = paste0("Subset size: ", plt_idx)) +  
-     theme_classic() + theme(legend.position="none") #-> plots[[plt_idx]]
-  # Histogram of number of fixations in a trial
-   mung_df %>%
-    group_by(trial_idx) %>%
-    slice_max(fixation_idx) %>%
-    ggplot(aes(fixation_idx, y = ..density..)) +
+     theme_classic() + theme(legend.position="none") -> plot1[[plt_idx]]
+  
+  # # Histogram of number of fixations in a trial
+  # #recall that a sequence of the same item is a single fixation, needs to me counted that way
+  mung_df %>% group_by(trial_idx) %>% 
+    mutate(fixation_num = cumsum(c(0,as.numeric(diff(fixations))!=0))) %>% 
+    slice_max(fixation_num) %>% 
+    ggplot(aes(fixation_num, y = ..density..)) +
     geom_histogram(fill = "white", color = "black", binwidth = 5) +
     geom_density(size = 1, color = plt_colors[[plt_idx]]) +
     labs(
@@ -102,7 +108,7 @@ for (plt_idx in seq_len(length(dats))){
       y = "Proportion of trials",
       title = "Histogram of number of fixations in a trial",
       subtitle = paste0("Subset size: ", plt_idx)
-    ) + theme_classic() + theme(legend.position="none") -> plots[[plt_idx]]
+    ) + theme_classic() + theme(legend.position="none") -> plot2[[plt_idx]]
 
   #Total fixation time as a function of the mean of all the item ratings (overall value)
    mung_df %>% group_by(trial_idx, fixations, avg_value_idx) %>% tally() %>%
@@ -117,22 +123,28 @@ for (plt_idx in seq_len(length(dats))){
        y = "Total fixation time [ms]",
        title = "Total fixation time as a function of the mean of all the item ratings (overall value)",
        subtitle = paste0("Subset size: ", plt_idx)
-     ) + theme_classic() + theme(legend.position="none") #-> plots[[plt_idx]]
+     ) + theme_classic() + theme(legend.position="none") -> plot3[[plt_idx]]
+   
    #Total fixation time as a function of the relative rating of the highest rated item
 }
-#create subplots plot for each subset size
-(plots[[1]] + plots[[2]] + plots[[3]])/(plots[[4]] + plots[[5]])
-ggsave(here("figures","histogram_number_of_fixations.png"), dpi = 300)
-names(mung_df)
+
+create_subplot <- function(plots, filename = NULL){
+  #create subplots plot for each subset size
+  print((plots[[1]] + plots[[2]] + plots[[3]])/(plots[[4]] + plots[[5]]))
+  if(!is.null(filename)){
+    ggsave(here("figures",filename), dpi = 300)
+  }
+}
+create_subplot(plot1, "density_total_fixation_time.png")
+create_subplot(plot2, "histogram_number_of_fixations.png")
+create_subplot(plot3, "fixation_time_mean_value.png")
+
 
 #Total fixation time as a function of the relative rating of the highest rated item
 mung_df %>% group_by(trial_idx, fixations, avg_value_idx) %>% tally() %>%
   mutate(fixation_duration = n * 100, .keep = "unused")
 
-
-
 #Total fixation time as a function of the relative rating of the highest rated item
-
 res_subset_size_1 %>%
   mutate(
     trial_idx = seq_len(nrow(res_subset_size_1)),
@@ -147,16 +159,48 @@ res_subset_size_1 %>%
   group_by(trial_idx) %>%
   mutate(value_idx = seq_len(n()),
          max_value = max(item_value), #get highest rated item
-         mean_other = mean(item_value), #get the mean of the other items
+         mean_other = mean(item_value), #get the mean of the other items (needs subset still)
          relative_rating = max_value - mean_other) %>% View
 
 
+
+#Proportion fixation on item 1 as a function of its value
+# First fixation duration as a function of the rating of the first-fixated item
+
+#the issue here is that, across subsets, first fixation is always a single
+#timestep. Need to discuss
+data_set %>%
+  mutate(
+    trial_idx = seq_len(nrow(data_set)),
+    fixations = gsub("\\[|\\]", "", fixations),
+    choice = gsub("\\[|\\]", "", choice)
+  ) %>%
+  separate_rows(fixations, sep = ",") %>%
+  mutate(
+    fixations = gsub(" ", "", fixations, fixed = TRUE),
+    fixations = as.numeric(fixations)
+  ) %>%
+  group_by(trial_idx) %>%
+  mutate(timestep_idx = seq_len(n())) %>% 
+  mutate(fixation_num = cumsum(c(0,as.numeric(diff(fixations))!=0))) %>% 
+  filter(fixation_num == 0) %>% 
+  mutate(
+    item_value = gsub("\\[|\\]", "", ss),
+  ) %>%
+  separate_rows(item_value, sep = ",") %>%
+  mutate(
+    item_value = gsub(" ", "", item_value, fixed = TRUE),
+    item_value = as.numeric(item_value)
+  ) %>% group_by(trial_idx) %>%
+  mutate(value_idx = seq_len(n())) %>% 
+  group_by(trial_idx) %>%
+  filter(fixations == value_idx) %>% View
+  
 
 ## Total fixation time as a function of the mean of all the item ratings (overall value).
 
 # Probability of choosing the first-seen item as a function of the first-fixation duration
 
-# First fixation duration as a function of the rating of the first-fixated item
 
 
 ###
