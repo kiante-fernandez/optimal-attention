@@ -21,6 +21,7 @@
 # ====         ================                       ======================
 # 12/07/22      Kianté  Fernandez                     Wrote intial code
 # 27/07/22      Kianté  Fernandez                     Fixed fixation histogram
+# 28/07/22      Kianté  Fernandez                     Added relative difference plot
 
 
 library(here)
@@ -39,7 +40,7 @@ load_sim_data <- function(filename) {
   temp <- list.files(path = filename, pattern = "*.csv", full.names = T)
   datasets <- vector(mode = "list", length(temp))
   for (idx in 1:length(temp)) {
-    datasets[[idx]] <- read_csv(temp[[idx]])
+    datasets[[idx]] <- read_csv(temp[[idx]], show_col_types = F)
   }
   return(datasets)
 }
@@ -52,19 +53,20 @@ dats <- load_sim_data(filename)
 # each fixation is == 100 ms. So 1,1,2.  is 200 ms on item 1 & 100ms on item two
 
 #>function for getting first fixation duration (still need to write)
-fixation_duration <- function() {
-
-}
-
+# fixation_duration <- function() {
+# 
+# }
+#color for varying levels of K
 plt_colors <- c("deepskyblue1", "darkgoldenrod2","forestgreen", "firebrick1","darkorchid3")
-
+#preallocate for plot structures
 plot1 <- vector(mode = "list", length = length(dats))
 plot2 <- vector(mode = "list", length = length(dats))
 plot3 <- vector(mode = "list", length = length(dats))
+plot4 <- vector(mode = "list", length = length(dats))
 
-#plt_idx <- 3
 for (plt_idx in seq_len(length(dats))){
-  data_set <- dats[[plt_idx]]
+  data_set <- dats[[plt_idx]] #for each level of k...
+  
   #munge the data to get it into a format for plotting
   mung_df <- data_set %>%
     mutate(
@@ -95,8 +97,8 @@ for (plt_idx in seq_len(length(dats))){
       subtitle = paste0("Subset size: ", plt_idx)) +  
      theme_classic() + theme(legend.position="none") -> plot1[[plt_idx]]
   
-  # # Histogram of number of fixations in a trial
-  # #recall that a sequence of the same item is a single fixation, needs to me counted that way
+  # Histogram of number of fixations in a trial
+  ##recall that a sequence of the same item is a single fixation, needs to me counted that way
   mung_df %>% group_by(trial_idx) %>% 
     mutate(fixation_num = cumsum(c(0,as.numeric(diff(fixations))!=0))) %>% 
     slice_max(fixation_num) %>% 
@@ -126,6 +128,42 @@ for (plt_idx in seq_len(length(dats))){
      ) + theme_classic() + theme(legend.position="none") -> plot3[[plt_idx]]
    
    #Total fixation time as a function of the relative rating of the highest rated item
+    ##get fixation time
+    total_fixation_time <- mung_df %>% group_by(trial_idx, fixations, avg_value_idx) %>% tally() %>%
+     mutate(fixation_duration = n * 100, .keep = "unused") %>%
+     group_by(trial_idx, avg_value_idx) %>% 
+     summarise(rt = sum(fixation_duration))
+   
+   data_set %>%
+     mutate(
+       trial_idx = seq_len(nrow(data_set)),
+       item_value = gsub("\\[|\\]", "", ss),
+       choice = gsub("\\[|\\]", "", choice), .keep = "unused"
+     ) %>%
+     separate_rows(item_value, sep = ",") %>%
+     mutate(
+       item_value = gsub(" ", "", item_value, fixed = TRUE),
+       item_value = as.numeric(item_value)
+     ) %>% 
+     group_by(trial_idx) %>%
+     mutate(value_idx = seq_len(n()),
+            max_value = max(item_value), #get highest rated item
+            mean_other = mean(subset(.$item_value, item_value != max_value)), #get the mean of the other items (needs subset still)
+            relative_rating = max_value - mean_other) %>% 
+     select(trial_idx, relative_rating) %>% distinct() %>% 
+     left_join(total_fixation_time, by = "trial_idx") %>% 
+     mutate(relative_rating = round(relative_rating)) %>% #to create bins for plotting
+     ggplot(aes(relative_rating, rt)) + 
+     stat_summary(fun.data = mean_se, geom = "errorbar") +
+     stat_summary(fun.data = mean_se, geom = "point", color = plt_colors[[plt_idx]]) + 
+     stat_summary(fun = mean, geom = "line", size = .7, color = plt_colors[[plt_idx]])+
+   labs(
+     x = "Best rating - mean other rating",
+     y = "Total fixation time [ms]",
+     title = "Total fixation time as a function of the relative rating of the highest rated item",
+     subtitle = paste0("Subset size: ", plt_idx)
+   ) + theme_classic() + theme(legend.position="none") -> plot4[[plt_idx]]
+   
 }
 
 create_subplot <- function(plots, filename = NULL){
@@ -138,37 +176,13 @@ create_subplot <- function(plots, filename = NULL){
 create_subplot(plot1, "density_total_fixation_time.png")
 create_subplot(plot2, "histogram_number_of_fixations.png")
 create_subplot(plot3, "fixation_time_mean_value.png")
-
-
-#Total fixation time as a function of the relative rating of the highest rated item
-mung_df %>% group_by(trial_idx, fixations, avg_value_idx) %>% tally() %>%
-  mutate(fixation_duration = n * 100, .keep = "unused")
-
-#Total fixation time as a function of the relative rating of the highest rated item
-res_subset_size_1 %>%
-  mutate(
-    trial_idx = seq_len(nrow(res_subset_size_1)),
-    item_value = gsub("\\[|\\]", "", ss),
-    choice = gsub("\\[|\\]", "", choice), .keep = "unused"
-  ) %>%
-  separate_rows(item_value, sep = ",") %>%
-  mutate(
-    item_value = gsub(" ", "", item_value, fixed = TRUE),
-    item_value = as.numeric(item_value)
-  ) %>%
-  group_by(trial_idx) %>%
-  mutate(value_idx = seq_len(n()),
-         max_value = max(item_value), #get highest rated item
-         mean_other = mean(item_value), #get the mean of the other items (needs subset still)
-         relative_rating = max_value - mean_other) %>% View
-
+create_subplot(plot4, "fixation_time_relative_value.png")
 
 
 #Proportion fixation on item 1 as a function of its value
 # First fixation duration as a function of the rating of the first-fixated item
 
-#the issue here is that, across subsets, first fixation is always a single
-#timestep. Need to discuss
+#ISSUE, across subsets, first fixation is always a single time step. Need to discuss
 data_set %>%
   mutate(
     trial_idx = seq_len(nrow(data_set)),
@@ -197,33 +211,6 @@ data_set %>%
   filter(fixations == value_idx) %>% View
   
 
-## Total fixation time as a function of the mean of all the item ratings (overall value).
-
 # Probability of choosing the first-seen item as a function of the first-fixation duration
 
 
-
-###
-
-#best rating - mean other ratings 
-
-# mung_df %>%
-#   group_by(trial_idx, fixations) %>%
-#   summarise(n = n()) %>%
-#   View()
-
-# get the fixation duration per view per trial
-# mung_df %>%
-#   group_by(trial_idx, fixations) %>%
-#   tally() %>%
-#   mutate(fixation_duration = n * 100, .keep = "unused") %>%
-#   View()
-
-#> what was the first fixation option
-#> what was the value of that option
-#>
-#>
-#> #get the first item, count how long it was looked at and get it's value
-
-# fixations fiaxtion trial ==  friaxtion trial 2
-#>
