@@ -47,7 +47,7 @@ end
 
 function write_simulation(n_item; dir=dir, n_sims=n_sims)
     for subset_idx in 1:n_item - 1
-        m = MetaMDP(;n_item, sub_size = subset_idx, σ_obs=2.6, sample_cost=.003, switch_cost=.01)
+        m = MetaMDP(;n_item, sub_size = subset_idx, σ_obs=2.6, sample_cost=.0037, switch_cost=.0995) #Changed from switch_cost=.00995
         dc = DirectedCognition(m; β=1000)
 
         to_sim = grid(

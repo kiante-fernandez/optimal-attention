@@ -63,6 +63,7 @@ plot1 <- vector(mode = "list", length = length(dats))
 plot2 <- vector(mode = "list", length = length(dats))
 plot3 <- vector(mode = "list", length = length(dats))
 plot4 <- vector(mode = "list", length = length(dats))
+plot5 <- vector(mode = "list", length = length(dats))
 
 for (plt_idx in seq_len(length(dats))){
   data_set <- dats[[plt_idx]] #for each level of k...
@@ -163,7 +164,53 @@ for (plt_idx in seq_len(length(dats))){
      title = "Total fixation time as a function of the relative rating of the highest rated item",
      subtitle = paste0("Subset size: ", plt_idx)
    ) + theme_classic() + theme(legend.position="none") -> plot4[[plt_idx]]
+   # First fixation duration as a function of the rating of the first-fixated item
+   #get first fixation
+   first_fixation_duration <- data_set %>%
+     mutate(
+       trial_idx = seq_len(nrow(data_set)),
+       fixations = gsub("\\[|\\]", "", fixations),
+       choice = gsub("\\[|\\]", "", choice)
+     ) %>%
+     separate_rows(fixations, sep = ",") %>%
+     mutate(
+       fixations = gsub(" ", "", fixations, fixed = TRUE),
+       fixations = as.numeric(fixations)
+     ) %>%
+     group_by(trial_idx) %>%
+     mutate(timestep_idx = seq_len(n())) %>% 
+     mutate(fixation_num = cumsum(c(0,as.numeric(diff(fixations))!=0))) %>% 
+     filter(fixation_num == 0) %>% 
+     group_by(trial_idx, fixations, avg_value_idx) %>% tally() %>%
+     mutate(fixation_duration = n * 100, .keep = "unused")
    
+   data_set %>%
+     mutate(
+       trial_idx = seq_len(nrow(data_set)),
+       item_value = gsub("\\[|\\]", "", ss),
+     ) %>%
+     separate_rows(item_value, sep = ",") %>%
+     mutate(
+       item_value = gsub(" ", "", item_value, fixed = TRUE),
+       item_value = as.numeric(item_value)
+     ) %>%
+     group_by(trial_idx) %>%
+     mutate(value_idx = seq_len(n())) %>% 
+     select(trial_idx, item_value, value_idx) %>%
+     left_join(first_fixation_duration, by = "trial_idx") %>% 
+     group_by(trial_idx) %>% 
+     filter(fixations == value_idx) %>%  
+     mutate(item_value = round(item_value)) %>% #to create bins for plotting
+     ggplot(aes(item_value, fixation_duration)) +
+     stat_summary(fun.data = mean_se, geom = "errorbar") +
+     stat_summary(fun.data = mean_se, geom = "point", color = plt_colors[[plt_idx]]) +
+     stat_summary(fun = mean, geom = "line", size = .7, color = plt_colors[[plt_idx]])+
+     labs(
+       x = "First fixated item rating",
+       y = "First fixation duration [ms]",
+       title = "First fixation duration as a function of the rating of the first-fixated item",
+       subtitle = paste0("Subset size: ", plt_idx)
+     ) + theme_classic() + theme(legend.position="none") -> plot5[[plt_idx]]
 }
 
 create_subplot <- function(plots, filename = NULL){
@@ -177,39 +224,8 @@ create_subplot(plot1, "density_total_fixation_time.png")
 create_subplot(plot2, "histogram_number_of_fixations.png")
 create_subplot(plot3, "fixation_time_mean_value.png")
 create_subplot(plot4, "fixation_time_relative_value.png")
+create_subplot(plot5, "first_fixation_first_value.png")
 
-
-#Proportion fixation on item 1 as a function of its value
-# First fixation duration as a function of the rating of the first-fixated item
-
-#ISSUE, across subsets, first fixation is always a single time step. Need to discuss
-data_set %>%
-  mutate(
-    trial_idx = seq_len(nrow(data_set)),
-    fixations = gsub("\\[|\\]", "", fixations),
-    choice = gsub("\\[|\\]", "", choice)
-  ) %>%
-  separate_rows(fixations, sep = ",") %>%
-  mutate(
-    fixations = gsub(" ", "", fixations, fixed = TRUE),
-    fixations = as.numeric(fixations)
-  ) %>%
-  group_by(trial_idx) %>%
-  mutate(timestep_idx = seq_len(n())) %>% 
-  mutate(fixation_num = cumsum(c(0,as.numeric(diff(fixations))!=0))) %>% 
-  filter(fixation_num == 0) %>% 
-  mutate(
-    item_value = gsub("\\[|\\]", "", ss),
-  ) %>%
-  separate_rows(item_value, sep = ",") %>%
-  mutate(
-    item_value = gsub(" ", "", item_value, fixed = TRUE),
-    item_value = as.numeric(item_value)
-  ) %>% group_by(trial_idx) %>%
-  mutate(value_idx = seq_len(n())) %>% 
-  group_by(trial_idx) %>%
-  filter(fixations == value_idx) %>% View
-  
 
 # Probability of choosing the first-seen item as a function of the first-fixation duration
 

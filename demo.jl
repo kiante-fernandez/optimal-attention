@@ -8,7 +8,7 @@ include("directed_cognition.jl")
 include("bmps.jl")
 include("bmps_bayesopt.jl")
 
-m = MetaMDP(n_item=5,sub_size =2, σ_obs=2.6, sample_cost=.003, switch_cost=.01)
+m = MetaMDP(n_item=6,sub_size =3, σ_obs=2.6, sample_cost=.0037, switch_cost=.0995)
 
 # %% ==================== simulate trials ====================
 
@@ -42,7 +42,7 @@ simulate(mg, State([-.2, .3, .4]))
 
 dc = DirectedCognition(m; β=1000)
 evaluate(dc)
-simulate(dc, State([-.2, .3, .4]))
+simulate(dc, State([-.2, .3, .4, .4, .5, .3]))
 
 bmps1 = BMPSPolicy(m, [0.01, .97, .00, .03])
 evaluate(bmps1)
