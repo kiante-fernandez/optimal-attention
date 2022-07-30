@@ -65,6 +65,8 @@ plot3 <- vector(mode = "list", length = length(dats))
 plot4 <- vector(mode = "list", length = length(dats))
 plot5 <- vector(mode = "list", length = length(dats))
 
+data_set <- dats[[1]] #for each level of k...
+
 for (plt_idx in seq_len(length(dats))){
   data_set <- dats[[plt_idx]] #for each level of k...
   
@@ -210,7 +212,8 @@ for (plt_idx in seq_len(length(dats))){
        y = "First fixation duration [ms]",
        title = "First fixation duration as a function of the rating of the first-fixated item",
        subtitle = paste0("Subset size: ", plt_idx)
-     ) + theme_classic() + theme(legend.position="none") -> plot5[[plt_idx]]
+     ) + theme_classic() + theme(legend.position="none")+
+     scale_x_continuous(breaks = c(-2,0,2,4)) -> plot5[[plt_idx]]
 }
 
 create_subplot <- function(plots, filename = NULL){

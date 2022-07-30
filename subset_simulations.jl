@@ -33,7 +33,7 @@ end
 
 # FRED: use relative paths so everyone can run the code
 dir = "simulation_results/res_subset_size_"
-n_sims = 10
+n_sims = 2500
 
 # %% ==================== run simulation  ====================
 
