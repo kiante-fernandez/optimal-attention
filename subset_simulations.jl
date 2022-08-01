@@ -51,7 +51,8 @@ function write_simulation(n_item; dir=dir, n_sims=n_sims)
         dc = DirectedCognition(m; β=1000)
 
         to_sim = grid(
-            avg_value_idx = 0:.2:2,  # 2 is a very strong bias
+#            avg_value_idx = 0:.2:2,  # 2 is a very strong bias
+            avg_value_idx = 0.0,      # start with Normal(0,1)
             trial_idx = 1:n_sims
         )[:]  # [:] flattens the matrix
         trials = map(to_sim) do (;avg_value_idx, trial_idx) # note: with ; the name matters and order doesn't
