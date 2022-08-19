@@ -317,9 +317,58 @@ ggplot(duration_df, aes(plot_indicator, group = factor(k), fill = factor(k))) +
     y = "Proportion",
     title = "Instances of occurance by fixation number"
   ) +
-  theme_classic()+
+  theme_classic() +
   theme(legend.position = "none") +
   facet_wrap(~k, labeller = "label_both", scales = "fixed")
 # but we get odd behavior. The k 2,3,4 seem to have many more instances of fixations at each number..
 
 # Probability of choosing the first-seen item as a function of the first-fixation duration
+
+# distribution of value of refixated items
+mung_df <- full_df %>%
+  group_by(k) %>%
+  mutate(
+    trial_idx = seq_len(n()),
+    fixations = gsub("\\[|\\]", "", fixations),
+    choice = gsub("\\[|\\]", "", choice)
+  ) %>%
+  separate_rows(fixations, sep = ",") %>%
+  mutate(
+    fixations = gsub(" ", "", fixations, fixed = TRUE),
+    fixations = as.numeric(fixations)
+  ) %>%
+  group_by(k, trial_idx) %>%
+  mutate(fixation_idx = seq_len(n()))
+
+refix_temp <- mung_df %>%
+  group_by(k, trial_idx, fixations) %>%
+  tally() %>%
+  filter(n > 1)
+
+full_df %>%
+  group_by(k) %>%
+  mutate(
+    trial_idx = seq_len(n()),
+    item_value = gsub("\\[|\\]", "", ss),
+    choice = gsub("\\[|\\]", "", choice), .keep = "unused"
+  ) %>%
+  separate_rows(item_value, sep = ",") %>%
+  mutate(
+    item_value = gsub(" ", "", item_value, fixed = TRUE),
+    item_value = as.numeric(item_value)
+  ) %>%
+  group_by(k, trial_idx) %>%
+  mutate(
+    fixations = seq_len(n()),
+  ) %>%
+  right_join(refix_temp, by = c("k", "trial_idx", "fixations")) %>%
+  ggplot(aes(item_value, color = factor(k), group = factor(k), fill = factor(k))) +
+  geom_histogram(color = "black", bins = 70) +
+  labs(
+    x = "Item value",
+    title = "Distribution of value of refixated items"
+  ) +
+  theme_classic() +
+  scale_color_brewer(palette = "Set1") +
+  theme(legend.position = "none") +
+  facet_wrap(~k, labeller = "label_both")
