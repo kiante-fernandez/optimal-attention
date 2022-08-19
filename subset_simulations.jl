@@ -21,8 +21,6 @@ function simulate(pol::Policy, s::State)
     end
     (;roll.choice, fixations)
 end
-
-# FRED: this should probably be "generate_values"
 function generate_values(n_item::Int = 3, mean_value::Float64 = 2)
     #Here we just want to generate some set of normally distributed
     # values for a given number of items
@@ -33,7 +31,7 @@ end
 
 # FRED: use relative paths so everyone can run the code
 dir = "simulation_results/res_subset_size_"
-n_sims = 2500
+n_sims = 10000
 
 # %% ==================== run simulation  ====================
 
