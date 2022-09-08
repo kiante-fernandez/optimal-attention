@@ -21,6 +21,3 @@ map(x->2*x+1, 1:5)
 map(1:5) do x
     2x + 1
 end
-
-# propbability first in chosen by proportion fixatuion on first
-# proproption fixate first by relative value of first

@@ -7,8 +7,8 @@ include("utils.jl")
 include("meta_mdp.jl")
 include("voi.jl")
 include("directed_cognition.jl")
-include("bmps.jl")
-include("bmps_bayesopt.jl")
+#include("bmps.jl")
+#include("bmps_bayesopt.jl")
 
 # %% ==================== load functions ====================
 
