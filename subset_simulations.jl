@@ -1,7 +1,7 @@
 using Distributed
 using Printf
 using CSV
-using DataFrames
+using DataFrames, DataFramesMeta
 
 include("utils.jl")
 include("meta_mdp.jl")
@@ -13,15 +13,15 @@ include("directed_cognition.jl")
 # %% ==================== load functions ====================
 
 function simulate(pol::Policy, s::State)
-    fixations = Int[]
+    attended = Int[]
     roll = rollout(pol; s) do b, c
         if c != 0
-            push!(fixations, c)
+            push!(attended, c)
         end
     end
-    (;roll.choice, fixations)
+    (;roll.choice, attended)
 end
-function generate_values(n_item::Int = 3, mean_value::Float64 = 2)
+function generate_values(n_item::Int = 3, mean_value::Float64 = 0)
     #Here we just want to generate some set of normally distributed
     # values for a given number of items
     d = Normal(mean_value,1) #arbitray
@@ -30,8 +30,8 @@ end
 # %% ==================== set up simulation parameters ====================
 
 # FRED: use relative paths so everyone can run the code
-dir = "simulation_results/res_subset_size_"
-n_sims = 10000
+DIR = "simulation_results/res_subset_size_"
+N_SIMS = 10000
 
 # %% ==================== run simulation  ====================
 
@@ -43,24 +43,84 @@ function grid(;kws...)
     end
 end
 
-function write_simulation(n_item; dir=dir, n_sims=n_sims)
-    for subset_idx in 1:n_item - 1
-        m = MetaMDP(;n_item, sub_size = subset_idx, σ_obs=2.6, sample_cost=.0037, switch_cost=.0995) #Changed from switch_cost=.00995
-        dc = DirectedCognition(m; β=1000)
 
-        to_sim = grid(
-#            avg_value_idx = 0:.2:2,  # 2 is a very strong bias
-            avg_value_idx = 0.0,      # start with Normal(0,1)
-            trial_idx = 1:n_sims
-        )[:]  # [:] flattens the matrix
-        trials = map(to_sim) do (;avg_value_idx, trial_idx) # note: with ; the name matters and order doesn't
-            ss = generate_values(n_item, avg_value_idx) #generate some values
-            sim = simulate(dc, State(ss))
-            (;avg_value_idx, trial_idx, ss, sim...)
-        end
-        file_name = string(dir, subset_idx,".csv")
-        CSV.write(file_name, DataFrame(trials))
+function run_simulation(n_item; n_sims=N_SIMS)
+    to_sim = grid(
+        trial_idx = 1:n_sims,
+        # avg_value_idx = 0:.2:2,  # 2 is a very strong bias
+        avg_value_idx = 0.0,      # start with Normal(0,1)
+        sub_size = 1:n_item-1,
+    )[:]  # [:] flattens the matrix
+    map(to_sim) do (;trial_idx, sub_size, avg_value_idx)
+        # m = MetaMDP(;n_item, sub_size, σ_obs=2.6, sample_cost=.0037, switch_cost=.00995)
+        #Changed from switch_cost=.00995
+        m = MetaMDP(;n_item, sub_size, σ_obs=3, sample_cost=.002, switch_cost=.05)
+        dc = DirectedCognition(m; β=1000)
+        vals = generate_values(n_item, avg_value_idx)
+        sim = simulate(dc, State(vals))            
+        (;sub_size, trial_idx, vals, sim...)
     end
 end
+
+all_sims = run_simulation(6; n_sims=1000);
+
+# %% ==================== trials.csv - one row per trial ====================
+
+trials = @chain DataFrame(all_sims) begin
+    @rtransform :choice = join(:choice, ",")
+    @rtransform :vals = join(:vals, ",")
+    @rtransform :attended = join(:attended, ",")
+end
+CSV.write("simulation_results/trials.csv", trials)
+
+# %% ==================== fixations.csv - one row per fixations ====================
+
+function parse_fixations(attended)
+    targets = Int[]; durations = Int[]
+    current = -1
+    for f in attended
+        if f != current
+            current = f
+            push!(targets, f)
+            push!(durations, 1)
+        else
+            durations[end] += 1
+        end
+    end
+    (targets, durations)
+end
+
+function make_fixations_frame(sims)
+    flatmap(sims) do sim
+        (;choice, attended, vals) = sim
+        targets, durations = parse_fixations(attended)
+        mean_val = mean(vals)
+        val_ranks = ranks(vals)
+        mean_choice_val = mean(vals[choice])
+        seen = Set{Int}()
+        map(eachindex(targets), targets, durations) do fix_num, fixated, duration
+            push!(seen, fixated)
+            mean_seen_val = mean(vals[s] for s in seen)
+            fixated_val = vals[fixated]
+            is_chosen = fixated in choice
+            (;sim.sub_size, sim.trial_idx, fix_num, fixated, duration, fixated_val, 
+              fixated_rank=val_ranks[fixated], is_chosen, mean_val, mean_seen_val)
+        end
+    end |> DataFrame
+end
+
+fixations = make_fixations_frame(all_sims)
+CSV.write("simulation_results/fixations.csv", fixations)
+
+# %% --------
+
+
+
+
+map(all_sims) do 
+
+
+        file_name = string(dir, sub_size,".csv")
+        CSV.write(file_name, DataFrame(trials))
 
 write_simulation(6)
