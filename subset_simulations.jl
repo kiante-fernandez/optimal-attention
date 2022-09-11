@@ -52,9 +52,9 @@ function run_simulation(n_item; n_sims=N_SIMS)
         sub_size = 1:n_item-1,
     )[:]  # [:] flattens the matrix
     map(to_sim) do (;trial_idx, sub_size, avg_value_idx)
-        # m = MetaMDP(;n_item, sub_size, σ_obs=2.6, sample_cost=.0037, switch_cost=.00995)
-        #Changed from switch_cost=.00995
-        m = MetaMDP(;n_item, sub_size, σ_obs=3, sample_cost=.002, switch_cost=.05)
+        # ORIGINAL:MetaMDP(;n_item, sub_size, σ_obs=2.6, sample_cost=.0037, switch_cost=.00995)
+        # m = MetaMDP(;n_item, sub_size, σ_obs=3, sample_cost=.002, switch_cost=.05)
+        m = MetaMDP(;n_item, sub_size, σ_obs=2.6, sample_cost=.0037, switch_cost=.0995)
         dc = DirectedCognition(m; β=1000)
         vals = generate_values(n_item, avg_value_idx)
         sim = simulate(dc, State(vals))            
@@ -111,16 +111,3 @@ end
 
 fixations = make_fixations_frame(all_sims)
 CSV.write("simulation_results/fixations.csv", fixations)
-
-# %% --------
-
-
-
-
-map(all_sims) do 
-
-
-        file_name = string(dir, sub_size,".csv")
-        CSV.write(file_name, DataFrame(trials))
-
-write_simulation(6)
