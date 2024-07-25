@@ -123,3 +123,13 @@ end
 
 # for do block syntax
 rollout(logger::Function, policy; kws...) = rollout(policy; kws..., logger=logger)
+
+function simulate(pol::Policy, s::State; max_steps=1000)
+    fixations = Int[]
+    roll = rollout(pol; s, max_steps) do b, c
+        if c != 0
+            push!(fixations, c)
+        end
+    end
+    (;roll.choice, fixations)
+end

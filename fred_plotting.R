@@ -36,7 +36,7 @@ update_geom_defaults("line", list(size = 1.2))
 # %% --------
 
 load_sim_data <- function(name, col_types=cols()) {
-    path = here("simulation_results")
+    path = here::here("simulation_results")
     read_csv(glue("{path}/{name}.csv"), show_col_types=F, col_types=col_types) %>%
         mutate(k = factor(sub_size), .keep="unused")
 }
