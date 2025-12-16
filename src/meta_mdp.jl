@@ -28,7 +28,7 @@ State(m::MetaMDP) = State(randn(m.n_item))
 
 "Belief state"
 mutable struct Belief
-    µ::Vector{Float64}  # mean vector
+    μ::Vector{Float64}  # mean vector
     λ::Vector{Float64}  # precision vector
     focused::Int        # currently fixated item (necessary for switch cost)
 #    ranks::Vector{Int}
@@ -41,7 +41,7 @@ Belief(s::State) = Belief( length(s.value))
 Belief(m::MetaMDP) = Belief( m.n_item)
 #this above is quite common
 
-Base.copy(b::Belief) = Belief(copy(b.µ), copy(b.λ), b.focused)
+Base.copy(b::Belief) = Belief(copy(b.μ), copy(b.λ), b.focused)
 
 
 "Base type for metalevel policies."
@@ -73,9 +73,9 @@ expectation but lower variance. This makes learning more efficient, but dosen't
 introduce any bias or change the optimal policy. See https://arxiv.org/abs/1408.2048
 """
 function term_reward(m::MetaMDP,b::Belief)
-    #maximum(b.µ)
+    #maximum(b.μ)
     # note we now need to change for subset
-    sum(partialsort(b.µ, 1:m.sub_size, rev = true))
+    sum(partialsort(b.μ, 1:m.sub_size, rev = true))
 end
 
 "Sampling cost function, includes switching cost."
@@ -92,7 +92,7 @@ function transition!(m, b::Belief, s::State, c::Computation)
     b.focused = c
     # obs = s.value[c] + randn() * m.σ_obs  # SAME AS BELOW
     obs = rand(Normal(s.value[c], m.σ_obs))
-    b.µ[c], b.λ[c] = bayes_update_normal(b.μ[c], b.λ[c], obs, m.σ_obs ^ -2)
+    b.μ[c], b.λ[c] = bayes_update_normal(b.μ[c], b.λ[c], obs, m.σ_obs ^ -2)
 end
 
 "Returns updated mean and precision given a prior and observation."
@@ -112,7 +112,7 @@ function rollout(policy::Policy; s=State(policy.m), max_steps=1000, logger=(b, c
         logger(b, c)
         if c == ⊥
             reward += term_reward(m,b)
-            choice = partialsortperm(noisy(b.µ), 1:m.sub_size, rev = true)
+            choice = partialsortperm(noisy(b.μ), 1:m.sub_size, rev = true)
             return (;reward, choice, steps=t, state=s, belief=b)
         else
             reward -= cost(m, b, c)

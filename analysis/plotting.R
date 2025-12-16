@@ -31,12 +31,15 @@ k_colors = scale_colour_manual(
         "#2c7bb6"
     ))
 
-update_geom_defaults("line", list(size = 1.2))
+update_geom_defaults("line", list(linewidth = 1.2))
+
+# Date stamp for figure filenames
+date_stamp = format(Sys.Date(), "%Y-%m-%d")
 
 # %% --------
 
 load_sim_data <- function(name, col_types=cols()) {
-    path = here::here("simulation_results")
+    path = here::here("results")
     read_csv(glue("{path}/{name}.csv"), show_col_types=F, col_types=col_types) %>%
         mutate(k = factor(sub_size), .keep="unused")
 }
@@ -53,7 +56,7 @@ fixations %>%
     facet_wrap(~k) + 
     k_colors
 
-ggsave("figures/first_duration.png", height=5)
+ggsave(here::here(glue("figures/first_duration_{date_stamp}.png")), height=5)
 
 # %% --------
 
@@ -66,4 +69,4 @@ fixations %>%
     facet_wrap(~k) +
     k_colors
 
-ggsave("figures/total_proportion.png", height=5)
+ggsave(here::here(glue("figures/total_proportion_{date_stamp}.png")), height=5)

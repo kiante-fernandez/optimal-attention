@@ -3,24 +3,16 @@ using Printf
 using CSV
 using DataFrames, DataFramesMeta
 
-include("utils.jl")
-include("meta_mdp.jl")
-include("voi.jl")
-include("directed_cognition.jl")
-#include("bmps.jl")
-#include("bmps_bayesopt.jl")
+include("config.jl")
+include("../src/utils.jl")
+include("../src/meta_mdp.jl")
+include("../src/voi.jl")
+include("../src/directed_cognition.jl")
 
 # %% ==================== load functions ====================
 
-function simulate(pol::Policy, s::State)
-    attended = Int[]
-    roll = rollout(pol; s) do b, c
-        if c != 0
-            push!(attended, c)
-        end
-    end
-    (;roll.choice, attended)
-end
+# simulate function is now in meta_mdp.jl (returns fixations field)
+
 function generate_values(n_item::Int = 3, mean_value::Float64 = 0)
     #Here we just want to generate some set of normally distributed
     # values for a given number of items
@@ -30,8 +22,8 @@ end
 # %% ==================== set up simulation parameters ====================
 
 # FRED: use relative paths so everyone can run the code
-DIR = "simulation_results/res_subset_size_"
-N_SIMS = 10000
+DIR = "../results/res_subset_size_"
+N_SIMS = DEFAULT_N_SIMS  # from config.jl
 
 # %% ==================== run simulation  ====================
 
@@ -52,26 +44,28 @@ function run_simulation(n_item; n_sims=N_SIMS)
         sub_size = 1:n_item-1,
     )[:]  # [:] flattens the matrix
     map(to_sim) do (;trial_idx, sub_size, avg_value_idx)
-        # ORIGINAL:MetaMDP(;n_item, sub_size, σ_obs=2.6, sample_cost=.0037, switch_cost=.00995)
-        # m = MetaMDP(;n_item, sub_size, σ_obs=3, sample_cost=.002, switch_cost=.05)
-        m = MetaMDP(;n_item, sub_size, σ_obs=2.6, sample_cost=.0037, switch_cost=.0995)
-        dc = DirectedCognition(m; β=1000)
+        m = MetaMDP(;n_item, sub_size,
+            σ_obs=DEFAULT_σ_OBS,
+            sample_cost=DEFAULT_SAMPLE_COST,
+            switch_cost=DEFAULT_SWITCH_COST)
+        dc = DirectedCognition(m; β=DC_BETA)
         vals = generate_values(n_item, avg_value_idx)
         sim = simulate(dc, State(vals))            
         (;sub_size, trial_idx, vals, sim...)
     end
 end
 
-all_sims = run_simulation(6; n_sims=1000);
+all_sims = run_simulation(4; n_sims=1000);
 
 # %% ==================== trials.csv - one row per trial ====================
 
 trials = @chain DataFrame(all_sims) begin
     @rtransform :choice = join(:choice, ",")
     @rtransform :vals = join(:vals, ",")
-    @rtransform :attended = join(:attended, ",")
+    @rtransform :attended = join(:fixations, ",")  # rename fixations→attended for output
+    DataFrames.select(Not(:fixations))  # drop the original fixations column
 end
-CSV.write("simulation_results/trials.csv", trials)
+CSV.write("../results/trials.csv", trials)
 
 # %% ==================== fixations.csv - one row per fixations ====================
 
@@ -92,8 +86,8 @@ end
 
 function make_fixations_frame(sims)
     flatmap(sims) do sim
-        (;choice, attended, vals) = sim
-        targets, durations = parse_fixations(attended)
+        (;choice, fixations, vals) = sim
+        targets, durations = parse_fixations(fixations)
         mean_val = mean(vals)
         val_ranks = ranks(vals)
         mean_choice_val = mean(vals[choice])
@@ -110,4 +104,4 @@ function make_fixations_frame(sims)
 end
 
 fixations = make_fixations_frame(all_sims)
-CSV.write("simulation_results/fixations.csv", fixations)
+CSV.write("../results/fixations.csv", fixations)
