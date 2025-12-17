@@ -78,8 +78,7 @@ empirical_fixations = raw_data %>%
             fixated_idx == 2 ~ item_value_2,
             fixated_idx == 3 ~ item_value_3
         ),
-        # Normalize values (0-100 scale to z-score within trial)
-        k = factor(options_selected)
+            k = factor(options_selected)
     ) %>%
     # Aggregate by subject, trial, and fixation to get duration
     group_by(subject_id, trial, k, fixation_id, fixation_category, fixated_idx, fixated_val_raw) %>%
@@ -87,12 +86,10 @@ empirical_fixations = raw_data %>%
         duration = n(),  # number of samples = duration
         .groups = "drop"
     ) %>%
-    # Normalize fixated value within each trial
-    group_by(subject_id, trial) %>%
+    # Z-score normalize fixated values within each subject (to match model's N(0,1) value distribution)
+    group_by(subject_id) %>%
     mutate(
-        # Z-score normalize within trial
-        mean_val = mean(c(first(fixated_val_raw))),  # we need trial-level mean
-        fixated_val = (fixated_val_raw - 50) / 25  # rough normalization: (0-100) -> (-2, 2)
+        fixated_val = (fixated_val_raw - mean(fixated_val_raw)) / sd(fixated_val_raw)
     ) %>%
     ungroup() %>%
     rename(fix_num = fixation_id) %>%
@@ -110,8 +107,9 @@ data_first = empirical_fixations %>%
     filter(fix_num == 1) %>%
     select(k, fixated_val, duration, source)
 
-# Combine
-combined_first = bind_rows(model_first, data_first)
+# Combine and set factor levels so Model=solid, Data=dashed (alphabetical would reverse this)
+combined_first = bind_rows(model_first, data_first) %>%
+    mutate(source = factor(source, levels = c("Model", "Data")))
 
 # Individual subject lines for data
 data_first_by_subject = empirical_fixations %>%
@@ -163,11 +161,12 @@ data_prop = empirical_fixations %>%
     ungroup() %>%
     mutate(source = "Data")
 
-# Combine
+# Combine and set factor levels so Model=solid, Data=dashed
 combined_prop = bind_rows(
     model_prop %>% select(k, val, prop_duration, source),
     data_prop %>% select(k, val, prop_duration, source)
-)
+) %>%
+    mutate(source = factor(source, levels = c("Model", "Data")))
 
 # Individual subject proportions for data
 data_prop_by_subject = data_prop %>%
