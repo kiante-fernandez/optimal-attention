@@ -46,13 +46,41 @@ raw_data = read_csv(here::here("data/choosekEYE_R.csv"), show_col_types=F)
 # Map button_ROI to item index (i=0, j=1, k=2, l=3)
 roi_to_idx = c("i" = 0, "j" = 1, "k" = 2, "l" = 3)
 
+# RT exclusion function (IQR method from pre-registration)
+exclude_rt <- function(df, rt_column = "total_rt", lower_bound = 250, upper_bound = 10000, iqr_multiplier = 2) {
+    df %>%
+        filter(!!sym(rt_column) > lower_bound) %>%
+        filter(!!sym(rt_column) < upper_bound) %>%
+        group_by(subject_id) %>%
+        mutate(
+            Q1 = quantile(!!sym(rt_column), .25),
+            Q3 = quantile(!!sym(rt_column), .75),
+            IQR = IQR(!!sym(rt_column))
+        ) %>%
+        filter(!!sym(rt_column) > (Q1 - iqr_multiplier * IQR) & !!sym(rt_column) < (Q3 + iqr_multiplier * IQR)) %>%
+        ungroup()
+}
+
+# Get trial-level data with RT and apply exclusion
+trial_data = raw_data %>%
+    select(subject_id, trial, options_selected, rt_1, rt_2, rt_3,
+           choice_rank_1, choice_rank_2, choice_rank_3) %>%
+    distinct() %>%
+    # Convert to inter-response times and calculate total_rt
+    mutate(
+        rt_2_irt = rt_2 - rt_1,
+        rt_3_irt = rt_3 - rt_2
+    ) %>%
+    mutate(
+        total_rt = rt_1 + ifelse(is.na(rt_2_irt), 0, rt_2_irt) + ifelse(is.na(rt_3_irt), 0, rt_3_irt)
+    ) %>%
+    exclude_rt()
+
 # Define correct trials: selecting the k highest-valued items
 # For k=1: choice_rank_1 == 1
 # For k=2: choice_rank_1 + choice_rank_2 == 3 (i.e., ranks 1 and 2)
 # For k=3: choice_rank_1 + choice_rank_2 + choice_rank_3 == 6 (i.e., ranks 1, 2, and 3)
-correct_trials = raw_data %>%
-    select(subject_id, trial, options_selected, choice_rank_1, choice_rank_2, choice_rank_3) %>%
-    distinct() %>%
+correct_trials = trial_data %>%
     mutate(
         is_correct = case_when(
             options_selected == 1 ~ choice_rank_1 == 1,
@@ -135,7 +163,7 @@ p1 = combined_first %>%
     labs(
         x = "Fixated Item Value (normalized)",
         y = "First Fixation Duration",
-        title = "First Fixation Duration by Item Value",
+        title = "",
         linetype = "Source"
     )
 
@@ -191,7 +219,7 @@ p2 = combined_prop %>%
     labs(
         x = "Item Value (normalized)",
         y = "Proportion of Total Fixation Time",
-        title = "Attention Allocation by Item Value",
+        title = "",
         linetype = "Source"
     )
 

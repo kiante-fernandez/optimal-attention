@@ -49,10 +49,4 @@ function voc(pol::DirectedCognition, b, c)
 end
 
 
-@kwdef struct MetaGreedy <: SoftmaxPolicy
-    m::MetaMDP
-    n::Int = 1
-    β::Float64 = 1e10
-end
-MetaGreedy(m; kws...) = MetaGreedy(;m, kws...)
-voc(pol::MetaGreedy, b, c) = voc_n(pol.m, b, c, 1)
+

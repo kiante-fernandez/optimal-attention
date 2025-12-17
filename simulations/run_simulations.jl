@@ -21,13 +21,12 @@ function generate_values(n_item::Int = 3, mean_value::Float64 = 0)
 end
 # %% ==================== set up simulation parameters ====================
 
-# FRED: use relative paths so everyone can run the code
+# use relative paths so everyone can run the code
 DIR = "../results/res_subset_size_"
 N_SIMS = DEFAULT_N_SIMS  # from config.jl
 
 # %% ==================== run simulation  ====================
 
-# FRED: it's fine if this looks like magic to you
 # It's a suuuuper useful utility function, similar to the expand.grid function in R
 function grid(;kws...)
     X = map(Iterators.product(values(kws)...)) do x

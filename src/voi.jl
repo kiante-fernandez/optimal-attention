@@ -38,20 +38,7 @@ function voi_n(m::MetaMDP, b::Belief, c::Computation, n)
     expect_max_dist(d, cv) - comparison_value(mu_sort, c_sort, m.sub_size)
 end
 
-"Myopic value of information"
-voi1(m, b, c) = voi_n(m, b, c, 1)
 
-"Value of perfect information about one action"
-function voi_action(m::MetaMDP, b::Belief, a::Int)
-    cv = competing_value(b.μ, a)
-    d = Normal(b.μ[a], b.λ[a] ^ -0.5)
-    expect_max_dist(d, cv) - maximum(b.μ)
-end
-
-"Value of perfect information about all items"
-function vpi(m::MetaMDP, b::Belief)
-    expected_max_norm(b.μ, b.λ) - maximum(b.μ)
-end
 
 
 # ==================== helpers ====================

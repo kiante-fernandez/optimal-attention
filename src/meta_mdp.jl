@@ -20,10 +20,7 @@ struct State
 end
 
 State(m::MetaMDP) = State(randn(m.n_item))
-#note that below you could write this out as (same thing):
-#function State(m::MetaMDP)
-#    State(randn(m.n_item))
-#end
+
 
 
 "Belief state"
@@ -33,13 +30,14 @@ mutable struct Belief
     focused::Int        # currently fixated item (necessary for switch cost)
 #    ranks::Vector{Int}
 end
-#note two below are the same, we can simplify:
+
+Belief(s::State) = Belief( length(s.value))
+Belief(m::MetaMDP) = Belief( m.n_item)
+
 function Belief(n_item::Int)
     Belief(zeros(n_item), ones(n_item), 0 )
 end
-Belief(s::State) = Belief( length(s.value))
-Belief(m::MetaMDP) = Belief( m.n_item)
-#this above is quite common
+
 
 Base.copy(b::Belief) = Belief(copy(b.μ), copy(b.λ), b.focused)
 
@@ -47,10 +45,7 @@ Base.copy(b::Belief) = Belief(copy(b.μ), copy(b.λ), b.focused)
 "Base type for metalevel policies."
 abstract type Policy end
 
-struct RandomPolicy <: Policy
-    m::MetaMDP
-end
-select(pol::RandomPolicy, b::Belief) = rand(0:pol.m.n_item)
+
 
 abstract type SoftmaxPolicy <: Policy end
 
@@ -60,9 +55,6 @@ function select(pol::SoftmaxPolicy, b)
     v, c = findmax(eachindex(b.μ)) do c
         voc(pol, b, c) + rand(noise)
     end
-#    v0cs = map(c->voc(pol, b, c), eachindex(b.μ))
-#    probs = softmax([0; vocs])
-#    sample(0:4, Weights(probs)
     v > rand(noise) ? c : ⊥
 end
 
@@ -73,7 +65,6 @@ expectation but lower variance. This makes learning more efficient, but dosen't
 introduce any bias or change the optimal policy. See https://arxiv.org/abs/1408.2048
 """
 function term_reward(m::MetaMDP,b::Belief)
-    #maximum(b.μ)
     # note we now need to change for subset
     sum(partialsort(b.μ, 1:m.sub_size, rev = true))
 end
@@ -90,7 +81,6 @@ end
 "Updates belief based on the given computation."
 function transition!(m, b::Belief, s::State, c::Computation)
     b.focused = c
-    # obs = s.value[c] + randn() * m.σ_obs  # SAME AS BELOW
     obs = rand(Normal(s.value[c], m.σ_obs))
     b.μ[c], b.λ[c] = bayes_update_normal(b.μ[c], b.λ[c], obs, m.σ_obs ^ -2)
 end
