@@ -1,6 +1,6 @@
 # Optimal Information Sampling in Multi-Response Settings
 
-Code for: Fernandez & Callaway. "Optimal Information Sampling in Multi-Response Settings."
+Code for: Fernandez, Callaway, & Krajbich. "Optimal Information Sampling in Multi-Response Settings."
 
 ## Overview
 
@@ -13,7 +13,6 @@ This repository contains simulation and analysis code for studying optimal atten
 **Julia 1.9+** with packages:
 - Distributions, Optim, StatsFuns, QuadGK
 - CSV, DataFrames, DataFramesMeta
-- Memoize, StatsBase, Parameters, SplitApplyCombine
 
 **R 4.0+** with packages:
 - tidyverse, ggplot2, here, readr, dplyr, magrittr
