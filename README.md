@@ -23,6 +23,7 @@ julia simulations/policy_cost.jl --fit results/fits/fit_simultaneous_stage2.csv 
 julia simulations/bernoulli_validation.jl   # directed cognition vs the exact optimum (Bernoulli model), S1 section G
 Rscript analysis/make_recovery_targets.R && simulations/recovery.sh && Rscript analysis/recovery_table.R   # S1 section H
 paper/plos/build.sh                  # PLOS PDF, TIFF figures, Word and PDF working copies from paper/manuscript.md
+python3 paper/build_chapter.py        # dissertation chapter version (APA 7 Word file) -> dissertation-papers/chapter-2/
 ```
 
 `simulations/pipeline.sh` runs the fits, the best-parameter simulations, and the figure scripts in sequence.

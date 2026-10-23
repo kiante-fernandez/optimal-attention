@@ -41,7 +41,8 @@ done
 APP=$(mktemp -d)/s1.md
 { printf '::: {#refs}\n:::\n\n## S1 Appendix. Derivations, policies, parameter search, and validation\n\n'
   awk 'NR==1&&/^---$/{f=1;next} f&&/^---$/{f=0;next} !f' $OUT/S1_Appendix.md | sed 's/^## /### /'; } > "$APP"
-pandoc "$MD" "$APP" --citeproc --shift-heading-level-by=-1 --reference-doc=$OUT/reference.docx -o paper/manuscript.docx
+MDW=$(mktemp).md; sed 's/\\tag{\([0-9]*\)}/\\qquad (\1)/' "$MD" > "$MDW"   # Word drops \tag; number the equations by hand
+pandoc "$MDW" "$APP" --citeproc --shift-heading-level-by=-1 --reference-doc=$OUT/reference.docx -o paper/manuscript.docx; rm -f "$MDW"
 pandoc "$MD" "$APP" --citeproc --shift-heading-level-by=-1 -o paper/manuscript.pdf --pdf-engine=xelatex -V mainfont="Times New Roman" -V geometry:margin=1in -V fontsize=11pt --include-in-header="$HDR"
 rm -rf "$(dirname "$APP")"
 echo "built: $OUT/manuscript.pdf, $OUT/S1_Appendix.pdf, $OUT/Fig*.tif, paper/manuscript.docx, paper/manuscript.pdf"

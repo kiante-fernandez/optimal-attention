@@ -1,6 +1,6 @@
 ---
 title: "S1 Appendix. Derivations, policies, parameter search, and validation"
-subtitle: "Optimal information sampling for choosing several items, and why people choose them one at a time"
+subtitle: "Fixation patterns in multi-response choice do not reflect optimal information sampling"
 author: "Fernandez, Callaway, and Krajbich"
 ---
 

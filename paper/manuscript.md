@@ -282,14 +282,10 @@ Summary statistics were computed per participant and then averaged, with 95% con
 
 ### Data and code availability
 
-The data, the model and analysis code, and the scripts that reproduce every figure will be deposited in a public repository with a DOI before publication.
+The data, the model and analysis code, and the scripts that reproduce every figure are available at https://github.com/kiante-fernandez/optimal-attention; a release of the repository will be archived with a DOI before publication.
 
 ## Supporting information
 
 **S1 Appendix. Derivations, policies, parameter search, and validation.** Derivation of the distribution of the posterior mean after $N$ samples (Eq 9) and of the value of information for subset selection (Eq 10), the lower-bound property of directed cognition, the proof that selecting $k$ items is rejecting $n - k$, the three response policies as algorithms, the details of the parameter search, the validation of the directed-cognition approximation against the exact optimal policy in a Bernoulli version of the task, and the parameter and policy recovery analysis.
-
-## Acknowledgments
-
-Supported by the National Science Foundation (CAREER Award 2148982 to I. K.) and the Ohio State University Decision Sciences Collaborative (K. A. F.).
 
 ## References
