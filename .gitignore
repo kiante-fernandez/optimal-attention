@@ -3,6 +3,22 @@
 .RData
 .Ruserdata
 archive
-data
 .vscode
 .DS_Store
+# large simulation outputs, fit search results, and logs (regenerate with simulations/pipeline.sh)
+results/model_*.csv
+results/data_fixations.csv
+logs/
+paper/plos/manuscript.aux
+paper/plos/manuscript.bbl
+paper/plos/manuscript.blg
+paper/plos/manuscript.log
+paper/plos/manuscript.out
+node_modules/
+# LaTeX auxiliaries of any paper build (the .bbl is kept for submission)
+paper/**/*.aux
+paper/**/*.blg
+paper/**/*.log
+paper/**/*.out
+# separate git repository (the CogSci version of the paper); not part of this repo
+paper/meta-MDP-multi-response/

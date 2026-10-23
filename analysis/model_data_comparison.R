@@ -34,17 +34,26 @@ update_geom_defaults("line", list(linewidth = 1.2))
 
 date_stamp = format(Sys.Date(), "%Y-%m-%d")
 
+# Time units: model samples are converted to ms (Callaway et al., 2021 assume 100 ms
+# per sample); empirical fixation duration is last - first sample time plus one
+# median inter-sample interval (WebGazer, ~53 ms).
+MODEL_MS_PER_SAMPLE = 100
+
 # %% ==================== Load Model Data ====================
 
 model_fixations = read_csv(here::here("results/fixations.csv"), show_col_types=F) %>%
-    mutate(k = factor(sub_size), source = "Model")
+    mutate(k = factor(sub_size), source = "Model", duration = duration * MODEL_MS_PER_SAMPLE)
 
 # %% ==================== Load and Process Empirical Data ====================
 
 raw_data = read_csv(here::here("data/choosekEYE_R.csv"), show_col_types=F)
+median_dt = raw_data %>% arrange(subject_id, trial, t) %>% group_by(subject_id, trial) %>%
+    mutate(dt = t - lag(t)) %>% ungroup() %>% filter(dt > 0) %>% pull(dt) %>% median()
 
-# Map button_ROI to item index (i=0, j=1, k=2, l=3)
-roi_to_idx = c("i" = 0, "j" = 1, "k" = 2, "l" = 3)
+# Map button_ROI to item index. Items are indexed by screen position (left, top,
+# right, bottom) = keys (j, i, l, k); verified against key_press vs choice_1.
+# NOTE: the dwell_0..3 columns use a different order (i, j, l, k); do not use them.
+roi_to_idx = c("j" = 0, "i" = 1, "l" = 2, "k" = 3)
 
 # RT exclusion function (IQR method from pre-registration)
 exclude_rt <- function(df, rt_column = "total_rt", lower_bound = 250, upper_bound = 10000, iqr_multiplier = 2) {
@@ -111,7 +120,7 @@ empirical_fixations = raw_data %>%
     # Aggregate by subject, trial, and fixation to get duration
     group_by(subject_id, trial, k, fixation_id, fixation_category, fixated_idx, fixated_val_raw) %>%
     summarise(
-        duration = n(),  # number of samples = duration
+        duration = max(t) - min(t) + median_dt,  # fixation duration in ms
         .groups = "drop"
     ) %>%
     # Z-score normalize fixated values within each subject (to match model's N(0,1) value distribution)
@@ -162,7 +171,7 @@ p1 = combined_first %>%
     k_colors +
     labs(
         x = "Fixated Item Value (normalized)",
-        y = "First Fixation Duration",
+        y = "First Fixation Duration (ms)",
         title = "",
         linetype = "Source"
     )

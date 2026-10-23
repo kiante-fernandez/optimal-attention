@@ -1,0 +1,78 @@
+% pandoc template: PLOS Computational Biology (template v3.8, Apr 2026); pandoc inserts title and body below.
+\documentclass[10pt,letterpaper]{article}
+\usepackage[top=0.85in,left=2.75in,footskip=0.75in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{changepage}
+\usepackage{textcomp,marvosym}
+\usepackage{cite}
+\usepackage{nameref,hyperref}
+\usepackage[right]{lineno}
+\usepackage[nopatch=eqnum]{microtype}
+\DisableLigatures[f]{encoding = *, family = * }
+\usepackage[table]{xcolor}
+\usepackage{array}
+\newcolumntype{+}{!{\vrule width 2pt}}
+\newlength\savedwidth
+\newcommand\thickcline[1]{%
+  \noalign{\global\savedwidth\arrayrulewidth\global\arrayrulewidth 2pt}%
+  \cline{#1}%
+  \noalign{\vskip\arrayrulewidth}%
+  \noalign{\global\arrayrulewidth\savedwidth}%
+}
+\newcommand\thickhline{\noalign{\global\savedwidth\arrayrulewidth\global\arrayrulewidth 2pt}%
+\hline
+\noalign{\global\arrayrulewidth\savedwidth}}
+\raggedright
+\setlength{\parindent}{0.5cm}
+\textwidth 5.25in
+\textheight 8.75in
+\usepackage[aboveskip=1pt,labelfont=bf,labelsep=period,justification=raggedright,singlelinecheck=off]{caption}
+\renewcommand{\figurename}{Fig}
+\bibliographystyle{plos2025}
+\makeatletter
+\renewcommand{\@biblabel}[1]{\quad#1.}
+\makeatother
+\usepackage{lastpage,fancyhdr,graphicx}
+\usepackage{epstopdf}
+\pagestyle{fancy}
+\fancyhf{}
+\rfoot{\thepage/\pageref{LastPage}}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrule}{\hrule height 2pt \vspace{2mm}}
+\fancyheadoffset[L]{2.25in}
+\fancyfootoffset[L]{2.25in}
+\lfoot{\today}
+% --- added for pandoc output (tables, math, unicode); PLOS permits additional packages
+\usepackage{longtable,booktabs,calc}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{textgreek}
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\providecommand{\pandocbounded}[1]{#1}
+\usepackage{float}
+\usepackage{flafter}
+\graphicspath{{../../}}
+\begin{document}
+\vspace*{0.2in}
+\begin{flushleft}
+{\Large
+\textbf{$title$}
+}
+\newline
+\\
+Kianté A. Fernandez\textsuperscript{1*},
+Frederick Callaway\textsuperscript{2},
+Ian Krajbich\textsuperscript{1}
+\\
+\bigskip
+\textbf{1} Department of Psychology, University of California, Los Angeles, Los Angeles, California, United States of America
+\\
+\textbf{2} Department of Psychology, New York University, New York, New York, United States of America
+\\
+\bigskip
+* kiantefernan@gmail.com
+\end{flushleft}
+$body$
+\nolinenumbers
+\bibliography{refs}
+\end{document}

@@ -1,0 +1,4 @@
+gen,Simultaneous,Best-first,Commit when certain,Best-fitting policy
+Simultaneous,0.7205069830308048,16.216447252486272,17.47284192835277,Simultaneous
+Best-first,20.252967660808633,2.4976574527865663,33.2459884930485,Best-first
+Commit when certain,6.768729228179671,21.138044487765455,0.45873715147712135,Commit when certain

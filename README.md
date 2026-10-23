@@ -8,25 +8,24 @@ This repository contains simulation and analysis code for studying optimal atten
 
 ## Reproducing Paper Results
 
-### Requirements
-
-**Julia 1.9+** with packages:
-- Distributions, Optim, StatsFuns, QuadGK
-- CSV, DataFrames, DataFramesMeta
-
-**R 4.0+** with packages:
-- tidyverse, ggplot2, here, readr, dplyr, magrittr
-
-### Running Simulations
+The pipeline, from the repository root:
 
 ```bash
-cd simulations
-julia run_simulations.jl
+Rscript analysis/build_data.R        # trial, fixation, and value-set tables from data/ -> results/
+Rscript analysis/descriptives.R      # Table 1 (results/tables/descriptives_by_k.csv)
+Rscript analysis/tests.R             # mixed-effects tests (results/tables/tests.txt)
+Rscript analysis/cluster_tests.R     # cluster-based permutation tests of the time-resolved index -> results/tables/cluster_tests.txt
+simulations/run_fits.sh              # fit sigma, gamma_sample, gamma_switch per policy (results/fits/)
+NREP=5 simulations/run_best.sh       # simulate each policy on the empirical trials at its best parameters
+Rscript analysis/figures.R           # Figs 3-9 (figures/paper/), data vs policies, odd-numbered trials
+Rscript analysis/fig1_fig2.R         # Fig 1 (task, belief updating) and Fig 2 (VOC maps)
+julia simulations/policy_cost.jl --fit results/fits/fit_simultaneous_stage2.csv   # cost of each response policy
+julia simulations/bernoulli_validation.jl   # directed cognition vs the exact optimum (Bernoulli model), S1 section G
+Rscript analysis/make_recovery_targets.R && simulations/recovery.sh && Rscript analysis/recovery_table.R   # S1 section H
+paper/plos/build.sh                  # PLOS PDF, TIFF figures, Word and PDF working copies from paper/manuscript.md
 ```
 
-This generates:
-- `results/trials.csv` - One row per trial with choice and attention data
-- `results/fixations.csv` - One row per fixation with timing and value information
+`simulations/pipeline.sh` runs the fits, the best-parameter simulations, and the figure scripts in sequence.
 
 ## Project Structure
 
@@ -34,17 +33,25 @@ This generates:
 optimal-attention/
 ├── src/                      # Core model implementation
 │   ├── meta_mdp.jl          # MetaMDP definition (State, Belief, Policy)
-│   ├── voi.jl               # Value of Information calculations (Eq. 5-7)
-│   ├── directed_cognition.jl # Directed Cognition approximation (Eq. 8)
+│   ├── voi.jl               # Value of information for subset selection (paper Eqs 6-7)
+│   ├── directed_cognition.jl # Directed Cognition approximation (paper Eq 5)
+│   ├── sequential.jl        # Response policies: simultaneous, best-first, commit-when-certain
 │   └── utils.jl             # Helper functions
 ├── simulations/             # Simulation scripts
-│   ├── run_simulations.jl   # Main simulation script
-│   └── config.jl            # Model parameters
+│   ├── run_simulations.jl   # Model-only simulation on random value sets
+│   ├── run_empirical.jl     # Simulate a policy on the empirical trials
+│   ├── fit_grid.jl          # Random-search parameter fit on summary statistics
+│   ├── policy_cost.jl       # Expected reward of each policy
+│   ├── run_fits.sh, run_best.sh, pipeline.sh
+│   └── config.jl            # Default parameters
 ├── analysis/                # Analysis and plotting
-│   ├── plotting.R           # Model-only figures
-│   └── model_data_comparison.R  # Model vs. data comparison
+│   ├── build_data.R         # Data tables (positional ROI mapping, fixations in ms, phases)
+│   ├── descriptives.R, tests.R, figures.R, fig1_fig2.R
+│   └── model_data_comparison.R  # Earlier two-figure comparison (superseded by figures.R)
 ├── data/                    # Empirical data
-│   └── choosekEYE_R.csv     # Eye-tracking data from behavioral experiment
+│   ├── choosekEYE_R.csv.gz  # Webcam gaze samples on item ROIs (from choose_k; gzipped)
+│   └── choosek_R.csv        # Trial-level behavior (from choose_k)
+├── paper/                   # manuscript.md (source), plos/ (PLOS build), STATUS_AND_PLAN.md
 ├── results/                 # Simulation output
 │   ├── trials.csv
 │   └── fixations.csv
@@ -72,7 +79,4 @@ Default parameters (from `simulations/config.jl`):
 
 ## Empirical Data
 
-The `data/choosekEYE_R.csv` file contains eye-tracking data from a behavioral experiment where participants selected k items from 4 alternatives. The `model_data_comparison.R` script:
-- Filters for correct trials (participants selected the k highest-valued items)
-- Compares model predictions to empirical fixation patterns
-- Generates figures showing both individual subject variability and aggregate trends
+`data/choosek_R.csv` holds trial-level behavior (ratings-based item values, choices, cumulative response times) and `data/choosekEYE_R.csv.gz` holds the webcam gaze samples (gzipped; read_csv reads it directly) assigned to item regions of interest (50 px buffer; `button_ROI` codes j, i, l, k are the left, top, right, bottom items). Both come from the `choose_k` pipeline. Participants are identified by the anonymous codes P01-P78 used in that repository's raw files; P05 is excluded (condition-assignment bug), and trials with four selections are dropped. `analysis/build_data.R` turns the two files into the tables in `results/` (`data_trials.csv`, `data_fixations.csv`, `value_sets.csv`, `data_summary_by_k.csv`, `data_subject_ratings.csv`); `results/tables/gaze_quality_by_subject.csv` gives each participant's share of raw samples that fell on an item. The data files are tracked in this repository (participants carry anonymous codes). `analysis/model_data_comparison.R` and `analysis/quantitative_fit_metrics.R` are the earlier correct-trials-only comparison and are kept for reference.

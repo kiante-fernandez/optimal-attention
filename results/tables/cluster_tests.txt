@@ -1,0 +1,33 @@
+Cluster-based permutation tests of the time-resolved index (100 ms bins, 5000 sign-flip permutations, cluster-forming threshold two-sided p < .05 per bin).
+
+onset-aligned, k = 1, index vs 0 (n = 72 participants):
+  positive cluster 800 to 1100 ms, mass 7.9, p = 0.079
+  positive cluster 1200 to 3000 ms, mass 65.4, p < 0.001
+onset-aligned, k = 2, index vs 0 (n = 72 participants):
+  positive cluster 700 to 2800 ms, mass 66.3, p < 0.001
+onset-aligned, k = 3, index vs 0 (n = 73 participants):
+  negative cluster 2000 to 2100 ms, mass -2.1, p = 0.451
+onset-aligned, k = 3 minus k = 1 (n = 72 participants):
+  negative cluster 1300 to 2800 ms, mass -46.1, p < 0.001
+onset-aligned, k = 2 minus k = 1 (n = 72 participants):
+  negative cluster 2100 to 2200 ms, mass -2.9, p = 0.248
+onset-aligned, k = 3 minus k = 2 (n = 72 participants):
+  negative cluster 1200 to 2700 ms, mass -39.7, p < 0.001
+  negative cluster 2900 to 3000 ms, mass -2.1, p = 0.485
+
+response-aligned, k = 1, index vs 0 (n = 72 participants):
+  positive cluster -800 to 0 ms, mass 44.3, p < 0.001
+response-aligned, k = 2, index vs 0 (n = 72 participants):
+  positive cluster -1100 to -1000 ms, mass 2.5, p = 0.284
+  positive cluster -900 to 0 ms, mass 41.6, p < 0.001
+response-aligned, k = 3, index vs 0 (n = 73 participants):
+  positive cluster -600 to 0 ms, mass 24.2, p = 0.002
+response-aligned, k = 3 minus k = 1 (n = 72 participants):
+  negative cluster -1200 to -1100 ms, mass -2.1, p = 0.440
+  negative cluster -1000 to -900 ms, mass -2.2, p = 0.407
+  negative cluster -300 to 0 ms, mass -10.3, p = 0.032
+response-aligned, k = 2 minus k = 1 (n = 72 participants):
+  negative cluster -200 to 0 ms, mass -6.0, p = 0.097
+response-aligned, k = 3 minus k = 2 (n = 72 participants):
+  negative cluster -1100 to -600 ms, mass -12.5, p = 0.012
+
