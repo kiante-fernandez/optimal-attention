@@ -131,8 +131,8 @@ Table I1. Behavior and eye movements by selection size. Means (SDs) over partici
 | Trials analyzed | 6637 | 6457 | 6620 |
 | Response time, last keypress (ms) | 1980 (751) | 2650 (1033) | 3084 (1318) |
 | Chose exactly the top-$k$ set | 0.57 (0.16) | 0.47 (0.15) | 0.58 (0.15) |
-| First response is the best item | — | 0.50 (0.13) | 0.46 (0.13) |
-| Responses in rank order | — | 0.61 (0.11) | 0.29 (0.12) |
+| First response is the best item | n/a | 0.50 (0.13) | 0.46 (0.13) |
+| Responses in rank order | n/a | 0.61 (0.11) | 0.29 (0.12) |
 | Fixations per trial | 2.93 (1.21) | 3.64 (1.61) | 4.05 (2.08) |
 | Items fixated at least once (of 4) | 2.16 (0.62) | 2.38 (0.64) | 2.51 (0.69) |
 | Total fixation time (ms) | 1210 (540) | 1679 (772) | 1989 (991) |

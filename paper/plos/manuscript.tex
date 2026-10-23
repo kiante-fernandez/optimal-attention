@@ -77,36 +77,31 @@ Ian Krajbich\textsuperscript{1}
 \section*{Abstract}\label{abstract}
 
 Many everyday choices require selecting several items from a set rather
-than one, such as filling a plate at a buffet. Models of attention in
-simple choice describe how a decision maker should sample noisy evidence
-about the values of the options when a single item must be chosen, and
-people's fixations follow these models: they look at the items whose
-value estimates are highest and least certain. Here we extend the
-metalevel Markov decision process of Callaway, Rangel, and Griffiths to
-the problem of selecting \(k\) of \(n\) items and derive how attention
-should be allocated. Because selecting \(k\) items is the same decision
+than one. Models of attention in simple choice describe how a decision
+maker should sample noisy evidence about the options' values, and
+people's fixations follow these models. Here we extend the metalevel
+Markov decision process of Callaway, Rangel, and Griffiths to selecting
+\(k\) of \(n\) items. Because selecting \(k\) items is the same decision
 as rejecting the other \(n-k\), the optimal policy for choosing three of
-four items is the mirror image of the policy for choosing one: sampling
-should concentrate on the two lowest estimates rather than the two
-highest. We tested this prediction with webcam eye tracking in 75
-participants who chose one, two, or three of four snack foods. Attention
-was value-directed, but the predicted mirror image did not appear.
-Before their first keypress, participants allocated attention in the
-same way regardless of how many items they had to choose, and after each
-keypress attention moved down the ranking of the remaining items.
-Responses were ordered by estimated value and spaced about half a second
-apart. These patterns are those of a decision maker who decomposes the
-task into successive single-item decisions. We formalize three normative
-policies that differ in when each item is committed. The policy that
-solves one single-item problem after another, carrying its beliefs
-forward, reproduces the absence of the mirror image, the dependence of
-decision time on the values on offer, and the spacing of successive
-responses, although it orders responses by value more strictly than
-people do. The decomposition costs nothing when two of four items are
-chosen and between 3\% and 49\% of net reward when three are, depending
-on the cost of switching attention. The results indicate that attention
-in multi-response choice is organized around the item to be chosen next
-rather than around the set to be chosen.
+four items mirrors the policy for choosing one: sampling should
+concentrate on the two lowest estimates rather than the two highest. We
+tested this prediction with webcam eye tracking in 75 participants who
+chose one, two, or three of four snack foods. Attention was
+value-directed, but the mirror image did not appear. Before their first
+keypress, participants allocated attention in the same way for every
+selection size; after each keypress attention moved down the ranking of
+the remaining items. Responses were ordered by estimated value and
+spaced about half a second apart. These are the patterns of a decision
+maker who decomposes the task into successive single-item decisions. Of
+three normative policies for when to commit each item, the one that
+solves single-item problems in sequence, carrying its beliefs forward,
+reproduces the absence of the mirror image, the dependence of decision
+time on the values on offer, and the spacing of responses. The
+decomposition costs nothing when two of four items are chosen and
+between 3\% and 49\% of net reward when three are, depending on the cost
+of switching attention. Attention in multi-response choice is organized
+around the item to be chosen next rather than around the set to be
+chosen.
 
 \section*{Author summary}\label{author-summary}
 
@@ -134,11 +129,11 @@ in a row, and we measure what that habit costs.
 
 Consider a shopper filling a basket, a diner assembling a plate at a
 buffet, or a student picking three electives from a list. Each must
-select several items from a set, and each must decide, moment by moment,
-which option to think about next. Research on simple choice, in which a
-single item is chosen, has established two features of this process.
-First, choices and response times are well described by the sequential
-accumulation of noisy evidence about the options' values
+select several items from a set. Each must also decide, moment by
+moment, which option to think about next. Research on simple choice, in
+which a single item is chosen, has established two features of this
+process. First, choices and response times are well described by the
+sequential accumulation of noisy evidence about the options' values
 \cite{ratcliff2008,usher2001,milosavljevic2010,busemeyer1993}. Second,
 visual attention shapes the accumulation: items that are fixated longer
 are more likely to be chosen
@@ -203,7 +198,7 @@ Here we do both. We extend the metalevel MDP of Callaway et al.
 \cite{callaway2021} to selecting \(k\) of \(n\) items, where the
 terminal reward is the summed value of the chosen set, and derive the
 value of sampling each item in closed form under the directed-cognition
-approximation \cite{gabaix2005,gabaix2006}. The analysis yields a simple
+approximation \cite{gabaix2005,gabaix2006}. The analysis gives a simple
 result. Because selecting the \(k\) best items is the same decision as
 rejecting the \(n-k\) worst, the optimal policy for a problem \((n, k)\)
 at a given belief is the optimal policy for the problem \((n, n-k)\)
@@ -325,7 +320,7 @@ optimal policy can be expressed through the value of computation
 reward from executing computation \(c\) once and then continuing
 optimally, rather than terminating now: \begin{equation}
 \text{VOC}(b_t, c) = R(b_t, c) + \mathbb{E}\!\left[\sum_{t' = t+1}^{T} R(b_{t'}, c_{t'}) \,\middle|\, c_{t'} \sim \pi^*(b_{t'})\right] - R(b_t, \bot). 
-\end{equation} In the terms of reinforcement learning,
+\end{equation} In the language of reinforcement learning,
 \(\text{VOC}(b, c) = Q^*(b, c) - R(b, \bot)\), where \(Q^*\) is the
 optimal state-action value function, and by definition
 \(\text{VOC}(b, \bot) = 0\). The optimal policy selects a computation
@@ -538,8 +533,8 @@ Response time, last keypress (ms) & 1980 (751) & 2650 (1033) & 3084
 (1318) \\
 Chose exactly the top-\(k\) set & 0.57 (0.16) & 0.47 (0.15) & 0.58
 (0.15) \\
-First response is the best item & --- & 0.50 (0.13) & 0.46 (0.13) \\
-Responses in rank order & --- & 0.61 (0.11) & 0.29 (0.12) \\
+First response is the best item & n/a & 0.50 (0.13) & 0.46 (0.13) \\
+Responses in rank order & n/a & 0.61 (0.11) & 0.29 (0.12) \\
 Fixations per trial & 2.93 (1.21) & 3.64 (1.61) & 4.05 (2.08) \\
 Total fixation time (ms) & 1210 (540) & 1679 (772) & 1989 (991) \\
 Dwell share, best item & 0.270 (0.051) & 0.264 (0.045) & 0.242
@@ -679,18 +674,18 @@ choosing one item, participants looked longest at the best item and
 least at the worst (dwell share fell by \(b = 0.013\) per rank,
 \(SE = 0.002\), \(t = -7.4\), mixed-effects regression), the pattern
 reported for trinary choice by Krajbich and Rangel \cite{krajbich2011}
-and predicted by the optimal policy. When choosing two, the gradient was
-slightly shallower (\(b = -0.010\), \(SE = 0.002\), \(t = -5.6\)). When
-choosing three, it was absent (\(b = 0.003\), \(SE = 0.002\),
-\(t = 1.6\)) and differed reliably from the choose-two gradient
-(difference \(0.012\), \(SE = 0.003\), \(t = 5.0\)). The mirror image
-did not appear: participants did not concentrate on the two worst items
-when the task was to leave one out. The same held for the duration of
-the first fixation (Fig 6B), which did not depend on the rank of the
+and predicted by the optimal policy. With two items to choose, the
+gradient was slightly shallower (\(b = -0.010\), \(SE = 0.002\),
+\(t = -5.6\)). When choosing three, it was absent (\(b = 0.003\),
+\(SE = 0.002\), \(t = 1.6\)) and differed reliably from the choose-two
+gradient (difference \(0.012\), \(SE = 0.003\), \(t = 5.0\)). The mirror
+image did not appear: participants did not concentrate on the two worst
+items when the task was to leave one out. The same held for the duration
+of the first fixation (Fig 6B), which did not depend on the rank of the
 fixated item in any condition (\(b = 0.009\) log units per rank,
 \(SE = 0.014\), \(t = 0.7\)), unlike the trinary data of Callaway et al.
-\cite{callaway2021}, where first fixations to high-rated items were
-longer.
+\cite{callaway2021}, with their longer first fixations to high-rated
+items.
 
 The time course of attention shows what happened instead (Fig 6C). We
 computed, within quintiles of each trial's duration, the probability of
@@ -708,16 +703,16 @@ items were better on average (\(b = -0.09\) bits per SD, \(SE = 0.01\),
 The policies separate on these measures (Fig 6A). The simultaneous and
 commit-when-certain policies predict the mirror image for three items,
 with dwell share rising from 0.14 to 0.40 across ranks, which the data
-contradict. The best-first policy predicts the flat profile observed for
-three items and the top-weighted profile for one, though with gradients
-about three times steeper than the data in every condition, a difference
-we return to in the Discussion. The time course (Fig 6C) and the
-overall-value effect (Fig 3D) tell the same story: the two subset
-policies turn attention to the worst item within the first second of a
-three-item trial, the best-first policy only after the first response,
-and the data follow the latter. All policies spread fixation time more
-evenly across the four items than participants did (Fig 6D), because
-participants rarely fixated all four.
+contradict. By contrast, the best-first policy predicts the flat profile
+observed for three items and the top-weighted profile for one, though
+with gradients about three times steeper than the data in every
+condition, a difference we return to in the Discussion. The time course
+(Fig 6C) and the overall-value effect (Fig 3D) tell the same story: the
+two subset policies turn attention to the worst item within the first
+second of a three-item trial, the best-first policy only after the first
+response, and the data follow the latter. All policies spread fixation
+time more evenly across the four items than participants did (Fig 6D),
+because participants rarely fixated all four.
 
 \begin{figure}[!htb]
 \centering
@@ -749,7 +744,7 @@ they had already chosen on about one fixation in five (Fig 7B); the
 policies never do, because a committed item carries no further value of
 information.
 
-Responses were ordered by value and quickly spaced. The first of two
+Responses were ordered by value and closely spaced. The first of two
 responses was the best-rated item on 50\% of trials and the first of
 three on 46\% (Fig 7D), and when the best item was among those chosen it
 was chosen first on 62\% and 49\% of trials. All three responses were in
@@ -760,8 +755,8 @@ trial, and each later keypress followed the previous one by about half a
 second (Fig 7C).
 
 These patterns are those of a decision maker who solves ``choose \(k\)''
-as a sequence of ``choose the best remaining item'' problems. The three
-policies separate on these measures. The simultaneous policy orders its
+as a sequence of ``choose the best remaining item'' problems. Here too
+the three policies separate. The simultaneous policy orders its
 responses by estimated value and so reproduces the order statistics,
 because estimates are noisy when sampling stops (first response is the
 best item on 53\% and 41\% of two- and three-item trials, against 50\%
@@ -776,9 +771,9 @@ the previous one against 575 and 533 ms observed (Fig 7C). Its misses
 are a first response that comes too early (0.8 s against 1.5 s), too
 many three-item trials in rank order (33\% against 29\%), and a first
 response that is the best item too often (51\% against 46\%; Fig 7D).
-The commit-when-certain policy predicts short gaps between responses
-(100 to 300 ms) and the observed order statistics, and its attention
-between responses tracks the data (Fig 7A, right), but because
+Finally, the commit-when-certain policy predicts short gaps between
+responses (100 to 300 ms) and the observed order statistics, and its
+attention between responses tracks the data (Fig 7A, right), but because
 membership in a set of three is certified quickly it predicts a first
 response far earlier than observed (after 0.6 s and 0.4 s of fixation
 time for two and three items, against 1.45 s and 1.43 s) and the
@@ -859,9 +854,9 @@ its estimate on average, and value-directed attention, under which an
 item with a high estimate is both fixated and chosen. The policies
 reproduce the dependence of choice on dwell share and rank (Fig 9A),
 overpredict the bias toward the last-fixated item in single-item trials
-(Fig 9B), where their last fixation almost always lands on the item they
-choose, and for three items the best-first policy reproduces that bias
-while the two subset policies underpredict it, because they end the
+(Fig 9B), because their last fixation almost always lands on the item
+they choose, and for three items the best-first policy reproduces that
+bias while the two subset policies underpredict it, because they end the
 trial on the item they reject.
 
 Frömer et al. \cite{fromer2025} derived a sharper prediction from the
@@ -996,7 +991,7 @@ parameter set: the directed-cognition approximation stops the
 simultaneous policy early, and the extra sampling that best-first does
 more than pays for itself. For choosing three of four, best-first earned
 less under every parameter set, by 3\% at the parameters of Callaway et
-al.~and by 24\% to 49\% at the fitted parameters, where switching
+al.~and by 24\% to 49\% at the fitted parameters, under which switching
 attention is expensive. Best-first establishes the full ranking of items
 it does not need to rank, and that is cheap when the selection boundary
 lies in the middle of the ranking and costly when the task is to leave
@@ -1177,13 +1172,17 @@ decision people make.
 \subsection*{Participants}\label{participants}
 
 Seventy-six participants were recruited on Prolific, were residents of
-the United States, and were paid at a rate of \$14 per hour. They gave
-written consent before the experiment, which was approved by the Human
-Subjects Internal Review Board at the Ohio State University. One
+the United States, and were paid at a rate of \$14 per hour. One
 participant was excluded because the selection-size condition was
 recorded inconsistently in their gaze records, and two others
 contributed no usable gaze data, so 75 participants enter the behavioral
 analyses and 73 the gaze analyses.
+
+\subsection*{Ethics statement}\label{ethics-statement}
+
+The experiment was approved by the Human Subjects Internal Review Board
+at the Ohio State University, and participants gave written consent
+before taking part.
 
 \subsection*{Task}\label{task}
 
@@ -1285,9 +1284,9 @@ trial were computed from the ratings with ties broken at random.
 
 \subsection*{Model simulation}\label{model-simulation}
 
-The model was implemented in Julia \cite{bezanson2017}. We simulated
-each policy on the trials that participants saw, with the true values
-set to the participant's standardized ratings of the four items,
+The model was implemented in Julia 1.11 \cite{bezanson2017}. We
+simulated each policy on the trials that participants saw, with the true
+values set to the participant's standardized ratings of the four items,
 \begin{equation}
 u^{(i)} = \frac{r^{(i)} - \bar{\mu}}{\bar{\sigma}}, 
 \end{equation} where \(\bar{\mu}\) and \(\bar{\sigma}\) are the mean and
@@ -1352,32 +1351,32 @@ for the policies simulated at their best-fitting parameters (Table 2).
 Summary statistics were computed per participant and then averaged, with
 95\% confidence intervals from 500 bootstrap resamples of participants.
 Regression analyses used linear and logistic mixed-effects models with
-random intercepts for participants, fitted with lme4 \cite{bates2015} in
-R \cite{rcoreteam2025}; we report the coefficient \(b\) with its
-standard error and the Wald statistic (\(t\) for linear and \(z\) for
-logistic models). Item rank was entered as a centered linear predictor,
-and values and gaps in SD units of the participant's ratings. Gaze
-entropy was computed per trial as \(-\sum_i p_i \log_2 p_i\) over the
-four items' shares of fixation time \cite{fromer2026}. Time-resolved
-fixation probabilities were computed in 100 ms bins as the probability,
-among trials with a fixation covering the bin, that the fixated item was
-the best minus the probability that it was the worst, aligned to
-stimulus onset or to the first keypress. These indices were tested with
-cluster-based permutation tests \cite{maris2007}: for each bin we
-computed a one-sample \(t\) statistic across participants (a paired
-statistic for the difference between selection sizes), formed clusters
-of adjacent bins whose statistic exceeded the two-sided 0.05 threshold,
-summed the statistics within each cluster, and compared each cluster's
-mass with the distribution of the largest absolute mass under 5000
-random sign flips of participants' indices.
+random intercepts for participants, fitted with lme4 (version 2.0.1)
+\cite{bates2015} in R 4.5 \cite{rcoreteam2025}; we report the
+coefficient \(b\) with its standard error and the Wald statistic (\(t\)
+for linear and \(z\) for logistic models). Item rank was entered as a
+centered linear predictor, and values and gaps in SD units of the
+participant's ratings. Gaze entropy was computed per trial as
+\(-\sum_i p_i \log_2 p_i\) over the four items' shares of fixation time
+\cite{fromer2026}. Time-resolved fixation probabilities were computed in
+100 ms bins as the probability, among trials with a fixation covering
+the bin, that the fixated item was the best minus the probability that
+it was the worst, aligned to stimulus onset or to the first keypress.
+These indices were tested with cluster-based permutation tests
+\cite{maris2007}: for each bin we computed a one-sample \(t\) statistic
+across participants (a paired statistic for the difference between
+selection sizes), formed clusters of adjacent bins whose statistic
+exceeded the two-sided 0.05 threshold, summed the statistics within each
+cluster, and compared each cluster's mass with the distribution of the
+largest absolute mass under 5000 random sign flips of participants'
+indices.
 
 \subsection*{Data and code
 availability}\label{data-and-code-availability}
 
 The data, the model and analysis code, and the scripts that reproduce
 every figure are available at
-https://github.com/kiante-fernandez/optimal-attention; a release of the
-repository will be archived with a DOI before publication.
+https://github.com/kiante-fernandez/optimal-attention.
 
 \section*{Supporting information}\label{supporting-information}
 

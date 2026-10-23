@@ -45,16 +45,22 @@ submission fields); the data needed for the paper are tracked in this repository
 1. Done: directed cognition validated against the exact optimum in a Bernoulli version of the task
    (`simulations/bernoulli_validation.jl`; 96.7-99.6% of optimal reward; symmetry exact), and parameter and policy
    recovery (`simulations/recovery.sh`, `analysis/recovery_table.R`); both in S1 Appendix (sections G, H).
-2. Kianté does his own pass first on the dissertation chapter version, rendered 2026-10-22 as
+2. Done 2026-10-22 (night): humanizer pass on `paper/manuscript.md` (abstract cut to 279 words for PLOS's 300-word
+   limit, two non-locative "where" clauses, "yields", one uniform-rhythm paragraph, table placeholders without em
+   dashes, an Ethics statement subsection in the Methods) and a norms check against the 19 PLOS Computational
+   Biology papers in ~/Downloads (abstract median 268 words, author summary median 225, figures median 6-7,
+   references median about 70, "Materials and methods" heading, ethics heading in about half): the manuscript is
+   within all of them (abstract 279, author summary 196, 9 figures, 3 tables, 62 references).
+3. Kianté does his own pass first on the dissertation chapter version, rendered 2026-10-22 as
    `dissertation-papers/chapter-2/3_metalevel_MDP_multi_response_v3.docx` by `paper/build_chapter.py` (APA 7
    manuscript: title page with author note, abstract and keywords, author-date citations, Figure/Table blocks,
    S1 as the Appendix; converted source kept in `chapter-2/3_source/`). Re-run the script after edits to
    `paper/manuscript.md`; edits made directly in the Word file must be carried back to the markdown by hand.
    Then the co-author pass (Word file `paper/manuscript.docx`, equation numbers now preserved), the humanizer check
    after their edits.
-3. PLOS compliance fixes 2026-10-22: funding removed from the manuscript's Acknowledgments (it lives in the
+4. PLOS compliance fixes 2026-10-22: funding removed from the manuscript's Acknowledgments (it lives in the
    submission form); data availability names the GitHub repository; the S1 subtitle carries the new title.
-4. Still to prepare for submission: cover letter, suggested reviewers, Zenodo DOI for the repository release,
+5. Still to prepare for submission: cover letter, suggested reviewers,
    the Acknowledgments line in the manuscript if Kianté wants it (the chapter's author note thanks Uma R. Karmarkar
    for the experiment design; the PLOS manuscript currently has no Acknowledgments section).
 

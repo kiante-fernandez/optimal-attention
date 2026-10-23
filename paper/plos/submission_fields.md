@@ -58,8 +58,8 @@ The authors have declared that no competing interests exist.
 ## Data availability statement
 
 All data (trial-level behavior and webcam gaze samples, with participants identified by anonymous codes), the
-model code (Julia), and the analysis code (R) are available at https://github.com/kiante-fernandez/optimal-attention.
-OPEN: add the archival DOI (Zenodo release of the repository) at submission.
+model code (Julia), and the analysis code (R) are available at https://github.com/kiante-fernandez/optimal-attention
+(decided 2026-10-22: GitHub only, no Zenodo archive).
 
 ## Ethics statement
 
@@ -70,4 +70,3 @@ institutional review board named there.
 
 - Cover letter.
 - Suggested reviewers and editors.
-- Zenodo DOI for the repository release.
