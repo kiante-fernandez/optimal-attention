@@ -2,7 +2,7 @@
 # Build the PLOS Computational Biology submission from paper/manuscript.md.
 #   paper/plos/manuscript.tex + .pdf   (PLOS template, numbered Vancouver references via BibTeX)
 #   paper/plos/Fig1.tif ...            (TIFF, <= 7.5 in wide, 300-600 dpi)
-#   paper/manuscript.docx / .pdf       (Word working copy with embedded figures, numbered refs via CSL)
+#   paper/manuscript.docx              (Word working copy with embedded figures, numbered refs via CSL)
 # DRAFT=1 (default) stamps a watermark and line numbers; build the submission with DRAFT=0.
 set -euo pipefail
 cd "$(dirname "$0")/../.."
@@ -37,12 +37,11 @@ for f in fig1_task_model fig2_policy fig3_psychometrics fig4_fixation_patterns f
   sips -s format tiff -s formatOptions lzw -s dpiWidth $dpi -s dpiHeight $dpi "$src" --out $OUT/Fig$i.tif >/dev/null
   i=$((i+1))
 done
-# 4. Word working copy and a plain PDF, with the appendix appended after the reference list
+# 4. Word working copy, with the appendix appended after the reference list
 APP=$(mktemp -d)/s1.md
 { printf '::: {#refs}\n:::\n\n## S1 Appendix. Derivations, policies, parameter search, and validation\n\n'
   awk 'NR==1&&/^---$/{f=1;next} f&&/^---$/{f=0;next} !f' $OUT/S1_Appendix.md | sed 's/^## /### /'; } > "$APP"
 MDW=$(mktemp).md; sed 's/\\tag{\([0-9]*\)}/\\qquad (\1)/' "$MD" > "$MDW"   # Word drops \tag; number the equations by hand
 pandoc "$MDW" "$APP" --citeproc --shift-heading-level-by=-1 --reference-doc=$OUT/reference.docx -o paper/manuscript.docx; rm -f "$MDW"
-pandoc "$MD" "$APP" --citeproc --shift-heading-level-by=-1 -o paper/manuscript.pdf --pdf-engine=xelatex -V mainfont="Times New Roman" -V geometry:margin=1in -V fontsize=11pt --include-in-header="$HDR"
 rm -rf "$(dirname "$APP")"
-echo "built: $OUT/manuscript.pdf, $OUT/S1_Appendix.pdf, $OUT/Fig*.tif, paper/manuscript.docx, paper/manuscript.pdf"
+echo "built: $OUT/manuscript.pdf, $OUT/S1_Appendix.pdf, $OUT/Fig*.tif, paper/manuscript.docx"

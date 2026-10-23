@@ -1,6 +1,6 @@
-# Optimal Information Sampling in Multi-Response Settings
+# Fixation patterns in multi-response choice do not reflect optimal information sampling
 
-Code for: Fernandez, Callaway, & Krajbich. "Optimal Information Sampling in Multi-Response Settings."
+Code and data for: Fernandez KA, Callaway F, Krajbich I. "Fixation patterns in multi-response choice do not reflect optimal information sampling" (manuscript for PLOS Computational Biology).
 
 ## Overview
 
@@ -22,11 +22,9 @@ Rscript analysis/fig1_fig2.R         # Fig 1 (task, belief updating) and Fig 2 (
 julia simulations/policy_cost.jl --fit results/fits/fit_simultaneous_stage2.csv   # cost of each response policy
 julia simulations/bernoulli_validation.jl   # directed cognition vs the exact optimum (Bernoulli model), S1 section G
 Rscript analysis/make_recovery_targets.R && simulations/recovery.sh && Rscript analysis/recovery_table.R   # S1 section H
-paper/plos/build.sh                  # PLOS PDF, TIFF figures, Word and PDF working copies from paper/manuscript.md
+paper/plos/build.sh                  # PLOS PDF, S1 Appendix PDF, TIFF figures, and the Word working copy from paper/manuscript.md
 python3 paper/build_chapter.py        # dissertation chapter version (APA 7 Word file) -> dissertation-papers/chapter-2/
 ```
-
-`simulations/pipeline.sh` runs the fits, the best-parameter simulations, and the figure scripts in sequence.
 
 ## Project Structure
 
@@ -34,30 +32,30 @@ python3 paper/build_chapter.py        # dissertation chapter version (APA 7 Word
 optimal-attention/
 ├── src/                      # Core model implementation
 │   ├── meta_mdp.jl          # MetaMDP definition (State, Belief, Policy)
-│   ├── voi.jl               # Value of information for subset selection (paper Eqs 6-7)
-│   ├── directed_cognition.jl # Directed Cognition approximation (paper Eq 5)
+│   ├── voi.jl               # Value of information for subset selection (paper Eqs 9-10)
+│   ├── directed_cognition.jl # Directed cognition approximation (paper Eq 8)
 │   ├── sequential.jl        # Response policies: simultaneous, best-first, commit-when-certain
 │   └── utils.jl             # Helper functions
-├── simulations/             # Simulation scripts
-│   ├── run_simulations.jl   # Model-only simulation on random value sets
+├── simulations/             # Fitting and simulation
 │   ├── run_empirical.jl     # Simulate a policy on the empirical trials
 │   ├── fit_grid.jl          # Random-search parameter fit on summary statistics
-│   ├── policy_cost.jl       # Expected reward of each policy
-│   ├── run_fits.sh, run_best.sh, pipeline.sh
+│   ├── policy_cost.jl       # Expected reward of each policy (Table 3)
+│   ├── bernoulli_validation.jl  # Directed cognition vs the exact optimum (S1 section G)
+│   ├── run_fits.sh, run_best.sh, recovery.sh
 │   └── config.jl            # Default parameters
 ├── analysis/                # Analysis and plotting
 │   ├── build_data.R         # Data tables (positional ROI mapping, fixations in ms, phases)
-│   ├── descriptives.R, tests.R, figures.R, fig1_fig2.R
-│   └── model_data_comparison.R  # Earlier two-figure comparison (superseded by figures.R)
-├── data/                    # Empirical data
+│   ├── descriptives.R, tests.R, cluster_tests.R, figures.R, fig1_fig2.R
+│   └── fit_table.R, policy_cost_table.R, make_recovery_targets.R, recovery_table.R
+├── R/theme_pub.R            # Figure theme
+├── data/                    # Empirical data (anonymous participant codes)
 │   ├── choosekEYE_R.csv.gz  # Webcam gaze samples on item ROIs (from choose_k; gzipped)
 │   └── choosek_R.csv        # Trial-level behavior (from choose_k)
-├── paper/                   # manuscript.md (source), plos/ (PLOS build), STATUS_AND_PLAN.md
-├── results/                 # Simulation output
-│   ├── trials.csv
-│   └── fixations.csv
-├── figures/                 # Generated figures
-└── archive/                 # Development artifacts
+├── results/                 # fits/ (parameter search), recovery/ (S1 section H), tables/
+│                            # data_*.csv, value_sets.csv, model_*.csv are build products and not tracked
+├── figures/paper/           # Figs 1-9 (PNG; TIFFs are built into paper/plos/)
+└── paper/                   # manuscript.md (source), plos/ (PLOS build, S1 Appendix, submission fields),
+                             # build_chapter.py (dissertation chapter), STATUS_AND_PLAN.md
 ```
 
 ## Model Parameters
@@ -75,9 +73,9 @@ Default parameters (from `simulations/config.jl`):
 ## Core Components
 
 - **MetaMDP** (`src/meta_mdp.jl`): Defines the metalevel decision problem including state representation, belief updates, and simulation
-- **Value of Information** (`src/voi.jl`): Computes the expected value of acquiring additional information about each item (Paper Eq. 5-7)
-- **Directed Cognition** (`src/directed_cognition.jl`): Implements the DC approximation policy for tractable attention allocation (Paper Eq. 8)
+- **Value of Information** (`src/voi.jl`): Computes the expected value of acquiring additional information about each item (paper Eqs 9-10)
+- **Directed Cognition** (`src/directed_cognition.jl`): Implements the DC approximation policy for tractable attention allocation (paper Eq 8)
 
 ## Empirical Data
 
-`data/choosek_R.csv` holds trial-level behavior (ratings-based item values, choices, cumulative response times) and `data/choosekEYE_R.csv.gz` holds the webcam gaze samples (gzipped; read_csv reads it directly) assigned to item regions of interest (50 px buffer; `button_ROI` codes j, i, l, k are the left, top, right, bottom items). Both come from the `choose_k` pipeline. Participants are identified by the anonymous codes P01-P78 used in that repository's raw files; P05 is excluded (condition-assignment bug), and trials with four selections are dropped. `analysis/build_data.R` turns the two files into the tables in `results/` (`data_trials.csv`, `data_fixations.csv`, `value_sets.csv`, `data_summary_by_k.csv`, `data_subject_ratings.csv`); `results/tables/gaze_quality_by_subject.csv` gives each participant's share of raw samples that fell on an item. The data files are tracked in this repository (participants carry anonymous codes). `analysis/model_data_comparison.R` and `analysis/quantitative_fit_metrics.R` are the earlier correct-trials-only comparison and are kept for reference.
+`data/choosek_R.csv` holds trial-level behavior (ratings-based item values, choices, cumulative response times) and `data/choosekEYE_R.csv.gz` holds the webcam gaze samples (gzipped; read_csv reads it directly) assigned to item regions of interest (50 px buffer; `button_ROI` codes j, i, l, k are the left, top, right, bottom items). Both come from the `choose_k` pipeline. Participants are identified by the anonymous codes P01-P78 used in that repository's raw files; P05 is excluded (condition-assignment bug), and trials with four selections are dropped. `analysis/build_data.R` turns the two files into the tables in `results/` (`data_trials.csv`, `data_fixations.csv`, `value_sets.csv`, `data_summary_by_k.csv`, `data_subject_ratings.csv`); `results/tables/gaze_quality_by_subject.csv` gives each participant's share of raw samples that fell on an item. The data files are tracked in this repository (participants carry anonymous codes). The derived tables are build products and are not tracked; `build_data.R` regenerates them in about 20 seconds.

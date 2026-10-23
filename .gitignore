@@ -5,15 +5,19 @@
 archive
 .vscode
 .DS_Store
-# large simulation outputs, fit search results, and logs (regenerate with simulations/pipeline.sh)
+# build products: derived data tables (analysis/build_data.R), simulations (simulations/run_best.sh), logs
 results/model_*.csv
-results/data_fixations.csv
+results/data_*.csv
+results/value_sets.csv
 logs/
 paper/plos/manuscript.aux
 paper/plos/manuscript.bbl
 paper/plos/manuscript.blg
 paper/plos/manuscript.log
 paper/plos/manuscript.out
+paper/plos/manuscript.tex
+paper/plos/Fig*.tif
+paper/manuscript.pdf
 node_modules/
 # LaTeX auxiliaries of any paper build (the .bbl is kept for submission)
 paper/**/*.aux
