@@ -46,7 +46,7 @@ def title_case(t):
         return "-".join(p[:1].upper() + p[1:] for p in w.split("-"))
     out = []
     for i, w in enumerate(t.split(" ")):
-        if "$" in w or w.startswith("\\") or w[:1].isupper() or not w:
+        if "$" in w or w.startswith("\\") or not w:
             out.append(w)
         elif i > 0 and w.lower() in SMALL:
             out.append(w.lower())
